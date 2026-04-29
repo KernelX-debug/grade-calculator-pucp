@@ -1,0 +1,7 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Notas Pucp Ciencias</string>
+    <string name="title_activity_main">Notas Pucp Ciencias</string>
+    <string name="package_name">com.ghericasas.notaspucp</string>
+    <string name="custom_url_scheme">com.ghericasas.notaspucp</string>
+</resources>

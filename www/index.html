@@ -1,0 +1,204 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Notas Pucp Ciencias</title>
+  <meta name="description" content="Calculadora movil para cursos PUCP con formulas fijas y modo oscuro o diurno." />
+  <meta name="theme-color" content="#eef4fb" />
+  <link rel="icon" type="image/png" href="./assets/pucplogodeportes.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body data-theme="light">
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">
+          <img src="./assets/pucplogodeportes.png" alt="Logo de la app" />
+        </div>
+        <div class="brand-copy">
+          <span class="eyebrow">PUCP Ciencias</span>
+          <h1>Notas Pucp Ciencias</h1>
+          <p>Version 1.1.0</p>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <button id="quick-theme-toggle" class="icon-button" type="button" aria-label="Cambiar tema">
+          <span id="quick-theme-icon" aria-hidden="true">☾</span>
+        </button>
+        <button id="menu-toggle" class="menu-button" type="button" aria-label="Abrir menu" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </header>
+
+    <div id="menu-layer" class="menu-layer" hidden>
+      <button id="menu-dismiss" class="menu-backdrop" type="button" aria-label="Cerrar menu"></button>
+      <aside class="menu-sheet" aria-label="Menu principal">
+        <div class="menu-sheet-head">
+          <span class="section-tag">Navegacion</span>
+          <h3>Explorar la app</h3>
+          <p>Accede rapidamente a las secciones principales.</p>
+        </div>
+        <nav class="menu-list" aria-label="Secciones principales">
+          <button class="menu-item active" data-nav-target="calculator" type="button">
+            <span class="menu-item-label">Notas</span>
+            <small>Calculadora principal</small>
+          </button>
+          <button class="menu-item" data-nav-target="formulas" type="button">
+            <span class="menu-item-label">Formulas</span>
+            <small>Biblioteca de evaluaciones</small>
+          </button>
+          <button class="menu-item" data-nav-target="settings" type="button">
+            <span class="menu-item-label">Ajustes</span>
+            <small>Tema, datos y soporte</small>
+          </button>
+        </nav>
+      </aside>
+    </div>
+
+    <main class="phone-frame">
+      <section class="screen active" data-screen="calculator">
+        <div class="screen-head compact-head">
+          <div>
+            <span class="section-tag">Notas</span>
+            <h2>Calculadora final</h2>
+          </div>
+          <button id="clear-course" class="ghost-button" type="button">Limpiar</button>
+        </div>
+
+        <section class="panel course-browser">
+          <span class="section-tag">Cursos</span>
+          <h3>Busca y selecciona tu curso</h3>
+          <label class="field search-field">
+            <span>Buscar por codigo o nombre</span>
+            <input id="course-search" type="search" autocomplete="off" placeholder="Ej: CALDIF o Fisica" />
+          </label>
+          <div id="course-list" class="course-list"></div>
+        </section>
+
+        <section class="hero-card compact-hero">
+          <div>
+            <span id="course-code" class="hero-code">AMGA</span>
+            <h3 id="course-name">Algebra Matricial y Geometria Analitica</h3>
+            <p id="course-summary">Ingresa tus notas por bloque para calcular el promedio exacto y la nota oficial.</p>
+          </div>
+          <div class="hero-badge">
+            <span>Regla final</span>
+            <strong>Redondeo al entero</strong>
+          </div>
+        </section>
+
+        <section id="calculator-content" class="calculator-content"></section>
+
+        <section class="results-stack">
+          <article class="result-card accent">
+            <span class="result-label">Nota final oficial</span>
+            <strong id="official-grade">--</strong>
+            <p id="status-copy">Ingresa tus notas para ver el resultado.</p>
+          </article>
+
+          <div class="result-grid">
+            <article class="result-card">
+              <span class="result-label">Nota exacta</span>
+              <strong id="exact-grade">--</strong>
+              <p>Promedio antes del redondeo.</p>
+            </article>
+            <article class="result-card">
+              <span class="result-label">Estado</span>
+              <strong id="status-label">Desaprobado</strong>
+              <p id="status-detail">La nota minima aprobatoria es 11.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel needed-panel">
+          <div class="section-row">
+            <div>
+              <span class="section-tag">Meta</span>
+              <h3>Cuanto necesito</h3>
+            </div>
+          </div>
+
+          <div class="needed-grid">
+            <label class="field">
+              <span>Objetivo final</span>
+              <input id="target-grade" type="text" inputmode="numeric" value="11" />
+            </label>
+            <label class="field">
+              <span>Bloque pendiente</span>
+              <select id="pending-select"></select>
+            </label>
+          </div>
+
+          <article class="need-card">
+            <span class="result-label">Necesitas al menos</span>
+            <strong id="needed-grade">--</strong>
+            <p id="needed-copy">Selecciona un bloque pendiente para estimar la nota promedio necesaria.</p>
+          </article>
+        </section>
+      </section>
+
+      <section class="screen" data-screen="formulas">
+        <div class="screen-head">
+          <div>
+            <span class="section-tag">Formulas</span>
+            <h2>Catalogo de cursos</h2>
+          </div>
+        </div>
+        <div id="formula-library" class="formula-library"></div>
+      </section>
+
+      <section class="screen" data-screen="settings">
+        <div class="screen-head">
+          <div>
+            <span class="section-tag">Ajustes</span>
+            <h2>Aspecto y soporte</h2>
+          </div>
+        </div>
+
+        <section class="panel settings-panel">
+          <span class="section-tag">Tema</span>
+          <h3>Elige el aspecto de la app</h3>
+          <div class="theme-options" id="theme-options">
+            <button class="theme-card" data-theme="dark" type="button">
+              <strong>Modo oscuro</strong>
+              <span>Base oscura con acentos celestes y una lectura mas sobria.</span>
+            </button>
+            <button class="theme-card" data-theme="light" type="button">
+              <strong>Modo diurno</strong>
+              <span>Fondo claro con contraste suave y apariencia formal.</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="panel settings-panel">
+          <span class="section-tag">Datos</span>
+          <h3>Limpiar informacion guardada</h3>
+          <div class="actions-grid">
+            <button id="clear-current-settings" class="ghost-button block" type="button">Limpiar curso actual</button>
+            <button id="clear-all-settings" class="ghost-button block danger" type="button">Borrar toda la app</button>
+          </div>
+          <p class="support-copy">Las notas y el tema se guardan localmente en tu dispositivo.</p>
+        </section>
+
+        <section class="panel settings-panel">
+          <span class="section-tag">Soporte</span>
+          <h3>Contacto y observaciones</h3>
+          <p class="support-copy">Si detectas alguna dificultad en el uso de la app, notas una diferencia con la formula vigente del curso o deseas enviar una sugerencia de mejora, puedes comunicarte al siguiente correo:</p>
+          <p class="support-mail">a20253134@pucp.edu.pe</p>
+          <a class="support-link" href="https://github.com/KernelX-debug/grade-calculator" target="_blank" rel="noreferrer">https://github.com/KernelX-debug/grade-calculator</a>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
