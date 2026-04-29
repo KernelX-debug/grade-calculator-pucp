@@ -8,7 +8,7 @@ App para calcular notas finales de cursos "globales" de la facultad estudios gen
 
 Descargar e instalar el ejecutable en lanzamientos, previsto para su funcionamiento en versiones de android 8-16
 
-Para uso web: [index.html](./index.html)
+Para uso web:
 
 Clone the repository: powershell
 
