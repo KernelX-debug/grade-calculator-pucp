@@ -1,8 +1,8 @@
 # Notas PUCP
 
-Primer released en español
+Primer released oficial en español
 
-App para calcular notas finales de cursos de primer ciclo facultad estudios generales ciencias PUCP.
+App para calcular notas finales de cursos "globales" de la facultad estudios generales ciencias PUCP.
 
 ## Abrir
 
@@ -19,13 +19,14 @@ git clone https://github.com/KernelX-debug/grade-calculator.git
 Enter the project folder:
 
 ```bash
-cd grade-calculator
+cd grade-calculator-pucp
+cd www
 ```
 
 Open the file:
 
 ```
-index.html
+start index.html
 ```
 
 in your web browser.
@@ -41,6 +42,8 @@ in your web browser.
 - Persistencia local en el navegador
 
 ## Importante
+
+Primera versión oficial, rendimiento mejorado y cursos agregados
 
 Proyecto en proceso de mejoras; se irán aumentando cursos a medida que el tiempo transcurra.
 
