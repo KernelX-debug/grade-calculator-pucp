@@ -13,7 +13,7 @@ Para uso web: [index.html](./index.html)
 Clone the repository:
 
 ```bash
-git clone https://github.com/KernelX-debug/grade-calculator.git
+git clone https://github.com/KernelX-debug/grade-calculator-pucp.git
 ```
 
 Enter the project folder:
