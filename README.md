@@ -10,7 +10,7 @@ Descargar e instalar el ejecutable en lanzamientos, previsto para su funcionamie
 
 Para uso web: [index.html](./index.html)
 
-Clone the repository:
+Clone the repository: powershell
 
 ```bash
 git clone https://github.com/KernelX-debug/grade-calculator-pucp.git
