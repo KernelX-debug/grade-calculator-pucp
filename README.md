@@ -13,6 +13,8 @@ La app puede descargarse desde la seccion de lanzamientos del repositorio.
 
 ## Uso web
 
+Para uso web www/index.html
+
 Clona el repositorio:
 
 ```bash
