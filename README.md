@@ -1,4 +1,4 @@
-# Notas PUCP
+# Notas Pucp Ciencias
 
 Primer release oficial en español.
 
@@ -47,7 +47,7 @@ start index.html
 
 ## Cursos incluidos
 
-Cursos actualizados en la app al 30/04/2026:
+Cursos actualizados en la app al 31/04/2026:
 
 - `AMGA` - Algebra Matricial y Geometria Analitica
 - `COAC` - Comunicacion Academica
