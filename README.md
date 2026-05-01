@@ -13,7 +13,7 @@ La app puede descargarse desde la seccion de lanzamientos del repositorio.
 
 ## Uso web
 
-Para uso web www/index.html
+Para uso web [index.html](www/index.html)
 
 Clona el repositorio:
 
