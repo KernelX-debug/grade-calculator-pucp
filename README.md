@@ -1,55 +1,88 @@
 # Notas PUCP
 
-Primer released oficial en español
+Primer release oficial en español.
 
-App para calcular notas finales de cursos "globales" de la facultad estudios generales ciencias PUCP.
+Aplicación movil para calcular notas finales de cursos globales de la Facultad de Estudios Generales Ciencias de la PUCP.
 
-## Abrir
+## Descargar
 
-Descargar e instalar el ejecutable en lanzamientos, previsto para su funcionamiento en versiones de android 8-16
+La app puede descargarse desde la seccion de lanzamientos del repositorio.
 
-Para uso web:
+- Plataforma principal: Android
+- Compatibilidad prevista: Android 8 a Android 16
 
-Clone the repository: powershell
+## Uso web
+
+Clona el repositorio:
 
 ```bash
 git clone https://github.com/KernelX-debug/grade-calculator-pucp.git
 ```
 
-Enter the project folder:
+Ingresa a la carpeta del proyecto:
 
 ```bash
 cd grade-calculator-pucp
 cd www
 ```
 
-Open the file:
+Abre el archivo principal en tu navegador:
 
-```
+```bash
 start index.html
 ```
 
-in your web browser.
+## Funciones incluidas
 
----
-
-## Incluye
-
-- Promedios con descarte de la menor nota
+- Cálculo de nota final por curso con formulas fijas
+- Promedios con descarte automatico de la menor nota cuando corresponde
 - Truncado a 1 decimal para componentes
 - Redondeo final al entero
-- Calculo de nota minima necesaria
-- Persistencia local en el navegador
+- Cálculo de nota mínima necesaria para alcanzar un objetivo final
+- Búsqueda de cursos por codigo o nombre
+- Persistencia local de datos en el navegador
+- Modo diurno y modo oscuro
+
+## Cursos incluidos
+
+Cursos actualizados en la app al 30/04/2026:
+
+- `AMGA` - Algebra Matricial y Geometria Analitica
+- `COAC` - Comunicacion Academica
+- `QUI1` - Quimica 1
+- `LABQUI1` - Laboratorio de Quimica 1
+- `FUCAL` - Fundamentos de Calculo
+- `FUFIS` - Fundamentos de Fisica
+- `CALDIF` - Calculo Diferencial
+- `CALINT` - Calculo Integral
+- `CALVA` - Calculo en Varias Variables
+- `CALVEC` - Calculo Vectorial
+- `CALA` - Calculo Aplicado
+- `DIBUJO` - Dibujo en Ingenieria
+- `TA` - Trabajo Academico
+- `CFIL` - Ciencia y Filosofia
+- `MYLP` - Motivacion y Liderazgo Personal
+- `FA1` - Fisica 1
+- `FA2` - Fisica 2
+- `FA3` - Fisica 3
+- `LABFA1` - Laboratorio de Fisica 1
+- `LABFA2` - Laboratorio de Fisica 2
+- `LABFA3` - Laboratorio de Fisica 3
+- `ESTATICA` - Estatica
+- `FUNPRO` - Fundamentos de Programacion
+- `TECPRO` - Tecnicas de Programacion
 
 ## Importante
 
-Primera versión oficial, rendimiento mejorado y cursos agregados
+- Esta es la primera version oficial en español, con mejoras de rendimiento y ampliación del catalogo de cursos.
+- El proyecto seguirá recibiendo mejoras y nuevas materias en futuras actualizaciones.
+- Las fórmulas incluidas son cambiantes. Siempre valida los pesos y reglas con tu sílabo del ciclo.
 
-Proyecto en proceso de mejoras; se irán aumentando cursos a medida que el tiempo transcurra.
+## Soporte
 
-Las formulas incluidas son cambiantes. Siempre valida los pesos y reglas con tu sílabo del ciclo.
+Su opinión es importante, si el usuario llega a observar alguna anomalía con los datos o problema con la app comunicarse por medio de correo electrónico: 
 
-Su opinión es importante, si el usuario llega a observar alguna anomalía con los datos o problema con la app comunicarse por medio de correo electrónico: a20253134@pucp.edu.pe
+a20253134@pucp.edu.pe
 
 ghericasas - KernelX_debug estuvo aquí..
 
