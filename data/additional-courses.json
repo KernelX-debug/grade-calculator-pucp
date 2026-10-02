@@ -1,0 +1,390 @@
+{
+  "checkedAt": "2026-10-01",
+  "courses": [
+    {
+      "publicationId": "207",
+      "nombre": "Psicología",
+      "clave": "000000",
+      "update": "2026-1",
+      "facultad": "EEGGCC",
+      "notaAprobar": 11,
+      "redondeoFinal": 1,
+      "eva": [
+        {
+          "nombre": "Participación (Pn)",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 1,
+          "sePromedia": false,
+          "aprox": 0
+        },
+        {
+          "nombre": "Sustentación oral (So)",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 3,
+          "sePromedia": false,
+          "aprox": 0
+        },
+        {
+          "nombre": "Evaluación permanente (Ep)",
+          "total": 4,
+          "eliminable": 0,
+          "peso": 4,
+          "sePromedia": true,
+          "aprox": 0
+        },
+        {
+          "nombre": "Evaluación parcial (Ez)",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 2,
+          "sePromedia": true,
+          "aprox": 0
+        }
+      ]
+    },
+    {
+      "publicationId": "133",
+      "nombre": "ED - Estructuras Discretas",
+      "clave": "INF134",
+      "update": "2026-1",
+      "facultad": "EEGGCC",
+      "notaAprobar": 11,
+      "redondeoFinal": 0,
+      "eva": [
+        {
+          "nombre": "Prácticas calificadas (PCs)",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 3,
+          "sePromedia": true,
+          "aprox": 1
+        },
+        {
+          "nombre": "Examen 1",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 3,
+          "sePromedia": false,
+          "aprox": 0
+        },
+        {
+          "nombre": "Examen 2",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 4,
+          "sePromedia": true,
+          "aprox": 0
+        }
+      ]
+    },
+    {
+      "publicationId": "124",
+      "nombre": "Biología general",
+      "clave": "1QUI39",
+      "update": "2026-1",
+      "facultad": "EEGGCC",
+      "notaAprobar": 11,
+      "redondeoFinal": 2,
+      "eva": [
+        {
+          "nombre": "Exámenes",
+          "total": 2,
+          "eliminable": 0,
+          "peso": 6,
+          "sePromedia": true,
+          "aprox": 1
+        },
+        {
+          "nombre": "Laboratorios",
+          "total": 6,
+          "eliminable": 0,
+          "peso": 4,
+          "sePromedia": true,
+          "aprox": 1
+        }
+      ]
+    },
+    {
+      "publicationId": "106",
+      "nombre": "Cultura y cristianismo",
+      "clave": "1CDR01",
+      "update": "2026-1",
+      "facultad": "EEGGCC",
+      "notaAprobar": 11,
+      "redondeoFinal": 1,
+      "eva": [
+        {
+          "nombre": "Prácticas (PCs)",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 3,
+          "sePromedia": true,
+          "aprox": 1
+        },
+        {
+          "nombre": "Examen 1",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 3,
+          "sePromedia": false,
+          "aprox": 0
+        },
+        {
+          "nombre": "Examen 2",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 4,
+          "sePromedia": false,
+          "aprox": 0
+        }
+      ]
+    },
+    {
+      "publicationId": "85",
+      "nombre": "RI - Retos de Ingeniería",
+      "clave": "1ING16",
+      "update": "2026-1",
+      "facultad": "EEGGCC",
+      "notaAprobar": 11,
+      "redondeoFinal": 0,
+      "eva": [
+        {
+          "nombre": "Prácticas calificadas (PCs)",
+          "total": 11,
+          "eliminable": 1,
+          "peso": 6,
+          "sePromedia": true,
+          "aprox": 1
+        },
+        {
+          "nombre": "Exámenes",
+          "total": 2,
+          "eliminable": 0,
+          "peso": 2,
+          "sePromedia": false,
+          "aprox": 0
+        }
+      ]
+    },
+    {
+      "publicationId": "51",
+      "nombre": "Circuitos Eléctricos 1",
+      "clave": "IEE148",
+      "update": "2026-1",
+      "facultad": "EEGGCC",
+      "notaAprobar": 11,
+      "redondeoFinal": 1,
+      "eva": [
+        {
+          "nombre": "Prácticas (Pa)",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 5,
+          "sePromedia": true,
+          "aprox": 1
+        },
+        {
+          "nombre": "Laboratorios (Pb)",
+          "total": 5,
+          "eliminable": 1,
+          "peso": 3,
+          "sePromedia": true,
+          "aprox": 1
+        },
+        {
+          "nombre": "Exámenes (Ex)",
+          "total": 2,
+          "eliminable": 0,
+          "peso": 6,
+          "sePromedia": false,
+          "aprox": 0
+        }
+      ]
+    },
+    {
+      "publicationId": "20",
+      "nombre": "Ciencia, ética y cristianismo",
+      "clave": "CDR121",
+      "update": "2026-1",
+      "facultad": "EEGGCC",
+      "notaAprobar": 11,
+      "redondeoFinal": 0,
+      "eva": [
+        {
+          "nombre": "Prácticas calificadas (Pr)",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 30,
+          "sePromedia": true,
+          "aprox": 1
+        },
+        {
+          "nombre": "Examen 1",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 30,
+          "sePromedia": false,
+          "aprox": 0
+        },
+        {
+          "nombre": "Examen 2",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 40,
+          "sePromedia": true,
+          "aprox": 0
+        }
+      ]
+    },
+    {
+      "publicationId": "19",
+      "nombre": "Psicología",
+      "clave": "1PSI04",
+      "update": "2026-1",
+      "facultad": "EEGGCC",
+      "notaAprobar": 11,
+      "redondeoFinal": 0,
+      "eva": [
+        {
+          "nombre": "Prácticas calificadas (Ep)",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 40,
+          "sePromedia": true,
+          "aprox": 1
+        },
+        {
+          "nombre": "Participación (Pn)",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 10,
+          "sePromedia": false,
+          "aprox": 0
+        },
+        {
+          "nombre": "Examen 1",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 20,
+          "sePromedia": false,
+          "aprox": 0
+        },
+        {
+          "nombre": "Sustentación oral (So)",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 30,
+          "sePromedia": false,
+          "aprox": 0
+        }
+      ]
+    },
+    {
+      "publicationId": "17",
+      "nombre": "Arquitectura de computadoras",
+      "clave": "1IEE06",
+      "update": "2026-1",
+      "facultad": "Ciencias e Ingeniería",
+      "notaAprobar": 11,
+      "redondeoFinal": 1,
+      "eva": [
+        {
+          "nombre": "Prácticas calificadas (Pb)",
+          "total": 12,
+          "eliminable": 1,
+          "peso": 50,
+          "sePromedia": true,
+          "aprox": 1
+        },
+        {
+          "nombre": "Examen 1",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 25,
+          "sePromedia": false,
+          "aprox": 0
+        },
+        {
+          "nombre": "Examen 2",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 25,
+          "sePromedia": false,
+          "aprox": 0
+        }
+      ]
+    },
+    {
+      "publicationId": "18",
+      "nombre": "Estructuras discretas",
+      "clave": "INF134",
+      "update": "2026-1",
+      "facultad": "EEGGCC",
+      "notaAprobar": 11,
+      "redondeoFinal": 0,
+      "eva": [
+        {
+          "nombre": "Prácticas calificadas (Pa)",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 30,
+          "sePromedia": true,
+          "aprox": 1
+        },
+        {
+          "nombre": "Examen 1",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 30,
+          "sePromedia": false,
+          "aprox": 0
+        },
+        {
+          "nombre": "Examen 2",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 40,
+          "sePromedia": false,
+          "aprox": 0
+        }
+      ]
+    },
+    {
+      "publicationId": "16",
+      "nombre": "Inteligencia Artificial",
+      "clave": "1INF24",
+      "update": "2026-1",
+      "facultad": "Ciencias e Ingeniería",
+      "notaAprobar": 11,
+      "redondeoFinal": 0,
+      "eva": [
+        {
+          "nombre": "Prácticas",
+          "total": 5,
+          "eliminable": 0,
+          "peso": 4,
+          "sePromedia": true,
+          "aprox": 1
+        },
+        {
+          "nombre": "Tarea académica",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 4,
+          "sePromedia": true,
+          "aprox": 0
+        },
+        {
+          "nombre": "Exámenes",
+          "total": 2,
+          "eliminable": 0,
+          "peso": 3,
+          "sePromedia": false,
+          "aprox": 0
+        }
+      ]
+    }
+  ]
+}
