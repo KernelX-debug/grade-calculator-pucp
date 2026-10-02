@@ -9,3 +9,15 @@ android/capacitor-cordova-android-plugins/.gradle/
 *.apk
 *.aab
 *.log
+*.jks
+*.keystore
+key.properties
+.DS_Store
+Thumbs.db
+notas-pucp-copia*.json
+
+.scratch/
+artifacts/
+coverage/
+android/capacitor-cordova-android-plugins/
+android/app/src/main/assets/
