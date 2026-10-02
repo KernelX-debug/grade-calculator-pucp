@@ -20,6 +20,20 @@ test("se conservan notas de la versión anterior, incluido TA y Estática", () =
   assert.equal(retired.values.amga.pc, "12 15 16");
 });
 
+test("las notas de Estructuras Discretas se conservan al unificar el curso", () => {
+  const grades = { e1: "15 16 17 8", e2: "12.5", e3: "18.5" };
+  const saved = { selectedCourseId: "np-133", customCourses: [], values: { "np-133": grades } };
+  const state = store.sanitizeState(saved, courses);
+  assert.equal(state.selectedCourseId, "np-18");
+  assert.deepEqual(state.values["np-18"], grades);
+  assert.equal(state.values["np-133"], undefined);
+  const restored = store.validateBackup({ app: "notas-pucp-ciencias", version: 1, state: saved }, courses);
+  assert.deepEqual(restored.values["np-18"], grades);
+  const current = { e1: "20 19 18 17", e2: "14", e3: "15" };
+  const combined = store.sanitizeState({ ...saved, values: { ...saved.values, "np-18": current } }, courses);
+  assert.deepEqual(combined.values["np-18"], current);
+});
+
 test("el almacenamiento bloqueado o corrupto no impide usar la app", () => {
   const blocked = { getItem() { throw new Error("Blocked"); }, setItem() { throw new Error("Full"); } };
   const loaded = store.load(blocked, courses);

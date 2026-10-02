@@ -42,7 +42,6 @@ function convert(source) {
     universityCode: source.clave,
     faculty: source.facultad, credits: source.creditos,
     publicationId: source.publicationId || null,
-    variantLabel: ({ "207": "Variante sin código", "19": "Variante con prácticas y sustentación", "133": "Variante B", "18": "Variante A" })[source.publicationId] || "",
     summary: `${source.facultad === "EEGGCC" ? "Estudios Generales Ciencias" : source.facultad}. Verifica las reglas con tu sílabo.`,
     passGrade: source.notaAprobar ?? 11, finalPrecision: source.redondeoFinal ?? source.aprox ?? 1, finalMode: "round",
     divisor: components.reduce((sum, c) => sum + c.weight * (c.aggregation === "sum" ? c.keep : 1), 0),
@@ -55,6 +54,7 @@ function convert(source) {
 
 const courses = [...snapshot.courses, ...publications.courses].map(convert);
 if (new Set(courses.map((c) => c.id)).size !== courses.length) throw new Error("Hay cursos con identificadores repetidos.");
+if (new Set(courses.map((c) => normalize(c.name))).size !== courses.length) throw new Error("Hay nombres de cursos repetidos.");
 const payload = { courses };
 const output = `(function (root) {\n  const catalog = ${JSON.stringify(payload, null, 2)};\n  if (typeof module === "object" && module.exports) module.exports = catalog;\n  else root.CourseCatalog = catalog;\n})(typeof globalThis !== "undefined" ? globalThis : this);\n`;
 fs.writeFileSync(path.join(__dirname, "../www/catalog.js"), output);

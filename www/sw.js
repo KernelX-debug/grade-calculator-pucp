@@ -1,5 +1,5 @@
 const CACHE_PREFIX = "notas-pucp-app-";
-const CACHE_NAME = `${CACHE_PREFIX}1.2.0-ui2`;
+const CACHE_NAME = `${CACHE_PREFIX}1.2.0-catalogo3`;
 const ASSETS = ["./", "./index.html", "./styles.css", "./app.js", "./grade-engine.js", "./catalog.js", "./state-store.js", "./manifest.webmanifest", "./assets/pucplogodeportes.png", "./assets/icon-192.png", "./assets/icon-512.png", "./assets/fonts/outfit-latin.woff2", "./assets/fonts/jetbrains-mono-latin.woff2"];
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));

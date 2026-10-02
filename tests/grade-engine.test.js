@@ -28,9 +28,10 @@ function sourceResult(source, lists) {
   return { exact, beforeFinal, official: Math.round(beforeFinal) };
 }
 
-test("el catálogo incluye los 24 cursos previos y los 11 esquemas adicionales, sin enlaces externos", () => {
-  assert.equal(courses.length, 35);
-  assert.equal(new Set(courses.map((c) => c.id)).size, 35);
+test("el catálogo incluye los 24 cursos previos y los 9 adicionales, sin duplicados ni enlaces externos", () => {
+  assert.equal(courses.length, 33);
+  assert.equal(new Set(courses.map((c) => c.id)).size, 33);
+  assert.equal(new Set(courses.map((c) => c.name.toLowerCase())).size, 33);
   assert.equal(get("np-21"), undefined);
   for (const course of courses) {
     assert.deepEqual(engine.validateCourse(course), []);
@@ -43,7 +44,7 @@ test("el catálogo incluye los 24 cursos previos y los 11 esquemas adicionales, 
   }
 });
 
-test("las 35 fórmulas coinciden con las reglas consultadas en 3.500 escenarios", () => {
+test("las 33 fórmulas coinciden con las reglas consultadas en 3.300 escenarios", () => {
   let seed = 419;
   const random = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed; };
   for (const [index, source] of base.concat(publications).entries()) {
@@ -120,10 +121,15 @@ test("los cursos personalizados usan porcentajes, cantidades, descartes y reglas
   }
 });
 
-test("las variantes conservan sus reglas distintas", () => {
-  assert.notEqual(get("np-18").variantLabel, get("np-133").variantLabel);
+test("Psicología y Estructuras Discretas tienen una sola entrada con los códigos y evaluaciones elegidos", () => {
+  assert.equal(get("np-207"), undefined);
+  assert.equal(get("np-133"), undefined);
+  assert.equal(get("np-19").code, "1PSI04");
+  assert.equal(get("np-18").code, "INF134");
+  assert.equal(get("np-18").components[0].label, "Prácticas calificadas (PCs)");
+  assert.equal(get("np-18").components[0].shortLabel, "PCs");
   assert.equal(get("np-18").components[2].precision, null);
-  assert.equal(get("np-133").components[2].precision, 0);
+  assert.ok(courses.every((course) => course.variantLabel === undefined));
 });
 
 test("la meta contempla descartes, truncados, los límites 0 y 20 y objetivos imposibles", () => {

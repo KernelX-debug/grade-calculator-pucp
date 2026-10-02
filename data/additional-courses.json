@@ -2,84 +2,6 @@
   "checkedAt": "2026-10-01",
   "courses": [
     {
-      "publicationId": "207",
-      "nombre": "Psicología",
-      "clave": "000000",
-      "update": "2026-1",
-      "facultad": "EEGGCC",
-      "notaAprobar": 11,
-      "redondeoFinal": 1,
-      "eva": [
-        {
-          "nombre": "Participación (Pn)",
-          "total": 1,
-          "eliminable": 0,
-          "peso": 1,
-          "sePromedia": false,
-          "aprox": 0
-        },
-        {
-          "nombre": "Sustentación oral (So)",
-          "total": 1,
-          "eliminable": 0,
-          "peso": 3,
-          "sePromedia": false,
-          "aprox": 0
-        },
-        {
-          "nombre": "Evaluación permanente (Ep)",
-          "total": 4,
-          "eliminable": 0,
-          "peso": 4,
-          "sePromedia": true,
-          "aprox": 0
-        },
-        {
-          "nombre": "Evaluación parcial (Ez)",
-          "total": 1,
-          "eliminable": 0,
-          "peso": 2,
-          "sePromedia": true,
-          "aprox": 0
-        }
-      ]
-    },
-    {
-      "publicationId": "133",
-      "nombre": "ED - Estructuras Discretas",
-      "clave": "INF134",
-      "update": "2026-1",
-      "facultad": "EEGGCC",
-      "notaAprobar": 11,
-      "redondeoFinal": 0,
-      "eva": [
-        {
-          "nombre": "Prácticas calificadas (PCs)",
-          "total": 4,
-          "eliminable": 1,
-          "peso": 3,
-          "sePromedia": true,
-          "aprox": 1
-        },
-        {
-          "nombre": "Examen 1",
-          "total": 1,
-          "eliminable": 0,
-          "peso": 3,
-          "sePromedia": false,
-          "aprox": 0
-        },
-        {
-          "nombre": "Examen 2",
-          "total": 1,
-          "eliminable": 0,
-          "peso": 4,
-          "sePromedia": true,
-          "aprox": 0
-        }
-      ]
-    },
-    {
       "publicationId": "124",
       "nombre": "Biología general",
       "clave": "1QUI39",
@@ -318,7 +240,7 @@
     },
     {
       "publicationId": "18",
-      "nombre": "Estructuras discretas",
+      "nombre": "Estructuras Discretas",
       "clave": "INF134",
       "update": "2026-1",
       "facultad": "EEGGCC",
@@ -326,7 +248,7 @@
       "redondeoFinal": 0,
       "eva": [
         {
-          "nombre": "Prácticas calificadas (Pa)",
+          "nombre": "Prácticas calificadas (PCs)",
           "total": 4,
           "eliminable": 1,
           "peso": 30,

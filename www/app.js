@@ -112,11 +112,11 @@
   function renderCourseList() {
     const query = normalize(state.courseQuery);
     const filtered = courses.filter((course) => (!state.faculty || course.faculty === state.faculty) && (!query || searchIndex.get(course.id).includes(query)));
-    $("course-count").textContent = `${filtered.length} de ${courses.length} cursos y variantes`;
+    $("course-count").textContent = `${filtered.length} de ${courses.length} cursos`;
     $("course-list").innerHTML = filtered.length ? filtered.map((course) => `
       <button class="course-chip ${course.id === state.selectedCourseId ? "active" : ""}" type="button" data-course-id="${html(course.id)}" aria-pressed="${course.id === state.selectedCourseId}">
         <small>${html(course.code)}${course.universityCode && course.code !== course.universityCode ? ` · ${html(course.universityCode)}` : ""}</small>
-        <strong>${html(course.name)}</strong>${course.variantLabel ? `<span class="component-note">${html(course.variantLabel)}</span>` : ""}
+        <strong>${html(course.name)}</strong>
       </button>`).join("") : '<div class="empty-state">No encontramos ese curso. Puedes crear uno con sus porcentajes.</div>';
   }
   function selectCourse(id) {
@@ -142,7 +142,7 @@
     const values = courseValues();
     $("course-code").textContent = course.code;
     $("course-name").textContent = course.name;
-    $("course-summary").textContent = [course.variantLabel, course.summary].filter(Boolean).join(" · ");
+    $("course-summary").textContent = course.summary;
     $("final-rule").textContent = finalRule(course);
     $("edit-custom-course").hidden = !course.custom;
     $("current-formula").textContent = engine.formula(course);
@@ -219,7 +219,7 @@
     const query = normalize($("formula-search").value);
     const filtered = courses.filter((course) => !query || searchIndex.get(course.id).includes(query));
     $("formula-library").innerHTML = filtered.length ? filtered.map((course) => `
-      <article class="formula-card"><div><span class="section-tag">${html(course.code)}</span><h3>${html(course.name)}</h3>${course.variantLabel ? `<p>${html(course.variantLabel)}</p>` : ""}</div>
+      <article class="formula-card"><div><span class="section-tag">${html(course.code)}</span><h3>${html(course.name)}</h3></div>
         <p class="formula-expression">${html(engine.formula(course))}</p><ul class="formula-list">${course.components.map((c) => `<li>${html(c.shortLabel)} · ${html(c.label)}: ${html(componentRule(c, course))}</li>`).join("")}</ul><p class="component-note">${html(finalRule(course))}. Nota aprobatoria: ${course.passGrade}.</p>
         <button class="ghost-button" type="button" data-use-course="${html(course.id)}">Calcular este curso</button>
       </article>`).join("") : '<p class="empty-state">No encontramos fórmulas con ese filtro.</p>';

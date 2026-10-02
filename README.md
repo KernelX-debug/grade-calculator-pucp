@@ -48,7 +48,7 @@ start index.html
 
 ## Cursos incluidos
 
-Cursos y esquemas actualizados en la app al 01/10/2026. El catálogo incluye 35 esquemas de cálculo:
+Cursos actualizados en la app al 01/10/2026. El catálogo incluye 33 cursos:
 
 - `AMGA` - Álgebra Matricial y Geometría Analítica
 - `COAC` - Comunicación Académica
@@ -74,19 +74,15 @@ Cursos y esquemas actualizados en la app al 01/10/2026. El catálogo incluye 35 
 - `ESTATICA` - Estática
 - `FUNPRO` - Fundamentos de Programación
 - `TECPRO` - Técnicas de Programación
-- `SIN CÓDIGO` - Psicología (esquema de evaluación permanente)
-- `ED` - Estructuras Discretas
 - `1QUI39` - Biología General
 - `1CDR01` - Cultura y Cristianismo
 - `RI` - Retos de Ingeniería
 - `IEE148` - Circuitos Eléctricos 1
 - `CDR121` - Ciencia, Ética y Cristianismo
-- `1PSI04` - Psicología (esquema de prácticas calificadas)
+- `1PSI04` - Psicología
 - `1IEE06` - Arquitectura de Computadoras
-- `INF134` - Estructuras Discretas (variante de cálculo)
+- `INF134` - Estructuras Discretas
 - `1INF24` - Inteligencia Artificial
-
-Psicología y Estructuras Discretas incluyen dos esquemas de evaluación. Elige el que corresponda a tu sílabo.
 
 ## Importante
 

@@ -48,13 +48,14 @@
     const allCourses = catalog.concat(customCourses);
     const values = {};
     if (isRecord(source.values)) for (const course of allCourses) {
-      const saved = source.values[course.id];
+      const saved = source.values[course.id] ?? (course.id === "np-18" ? source.values["np-133"] : undefined);
       if (!isRecord(saved)) continue;
       values[course.id] = {};
       for (const component of course.components) if (typeof saved[component.id] === "string") values[course.id][component.id] = saved[component.id].slice(0, 4000);
     }
+    const selectedCourseId = source.selectedCourseId === "np-133" ? "np-18" : source.selectedCourseId;
     return { schemaVersion: 2,
-      selectedCourseId: allCourses.some((c) => c.id === source.selectedCourseId) ? source.selectedCourseId : catalog[0].id,
+      selectedCourseId: allCourses.some((c) => c.id === selectedCourseId) ? selectedCourseId : catalog[0].id,
       activeScreen: ["calculator", "custom", "formulas", "settings"].includes(source.activeScreen) ? source.activeScreen : "calculator",
       theme: source.theme === "dark" ? "dark" : "light", target: String(source.target ?? "11").slice(0, 20),
       courseQuery: String(source.courseQuery || "").slice(0, 100), faculty: String(source.faculty || "").slice(0, 100),
