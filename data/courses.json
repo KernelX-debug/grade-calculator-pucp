@@ -1,0 +1,690 @@
+{
+  "checkedAt": "2026-10-01",
+  "courses": [
+    {
+      "nombre": "AMGA - Álgebra Matricial y Geometría Analítica",
+      "clave": "1MAT04",
+      "creditos": 4.5,
+      "facultad": "EEGGCC",
+      "update": "2026-1",
+      "eva": [
+        {
+          "nombre": "Practicas calificadas",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 3,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Practicas dirigidas",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 1,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Exámenes",
+          "total": 2,
+          "eliminable": 0,
+          "peso": 3,
+          "sePromedia": false
+        }
+      ]
+    },
+    {
+      "nombre": "FUFIS - Fundamentos de física",
+      "clave": "1FIS01",
+      "creditos": 3.5,
+      "facultad": "EEGGCC",
+      "update": "2026-1",
+      "eva": [
+        {
+          "nombre": "Practicas calificadas",
+          "total": 5,
+          "eliminable": 1,
+          "peso": 4,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Exámenes",
+          "total": 2,
+          "eliminable": 0,
+          "peso": 3,
+          "sePromedia": false
+        }
+      ]
+    },
+    {
+      "nombre": "FUCAL - Fundamentos de cálculo",
+      "clave": "1MAT05",
+      "creditos": 4.5,
+      "facultad": "EEGGCC",
+      "update": "2026-1",
+      "eva": [
+        {
+          "nombre": "Prácticas calificadas",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 3,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Prácticas dirigidas",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 1,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Exámenes",
+          "total": 2,
+          "eliminable": 0,
+          "peso": 3,
+          "sePromedia": false
+        }
+      ]
+    },
+    {
+      "nombre": "QUI1 - Química 1",
+      "clave": "1QUI01",
+      "creditos": 3.5,
+      "facultad": "EEGGCC",
+      "update": "2026-1",
+      "eva": [
+        {
+          "nombre": "Prácticas calificadas",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 5,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Prácticas dirigidas",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 3,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Exámenes",
+          "total": 2,
+          "eliminable": 0,
+          "peso": 6,
+          "sePromedia": false
+        }
+      ]
+    },
+    {
+      "nombre": "COAC - Comunicación académica",
+      "clave": "1LIN15",
+      "creditos": 3,
+      "facultad": "EEGGCC",
+      "update": "2026-1",
+      "eva": [
+        {
+          "nombre": "Prácticas",
+          "total": 5,
+          "eliminable": 1,
+          "peso": 4,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Trabajo final",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 1,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Evaluación permanente",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 1,
+          "sePromedia": false
+        },
+        {
+          "nombre": "Exámenes",
+          "total": 2,
+          "eliminable": 0,
+          "peso": 2,
+          "sePromedia": false
+        }
+      ]
+    },
+    {
+      "nombre": "LABQUI - Laboratorio de química 1",
+      "clave": "1QUI02",
+      "creditos": 0.75,
+      "facultad": "EEGGCC",
+      "update": "2026-1",
+      "eva": [
+        {
+          "nombre": "Prácticas",
+          "total": 6,
+          "eliminable": 1,
+          "peso": 1,
+          "sePromedia": true
+        }
+      ]
+    },
+    {
+      "nombre": "CALDIF - Cálculo diferencial",
+      "clave": "1MAT06",
+      "creditos": 4.5,
+      "facultad": "EEGGCC",
+      "update": "2026-1",
+      "eva": [
+        {
+          "nombre": "Prácticas calificadas",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 3,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Prácticas dirigidas",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 1,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Exámenes",
+          "total": 2,
+          "eliminable": 0,
+          "peso": 3,
+          "sePromedia": false
+        }
+      ]
+    },
+    {
+      "nombre": "DIBUJO - Dibujo en ingeniería",
+      "clave": "1ING02",
+      "creditos": 4.5,
+      "facultad": "EEGGCC",
+      "update": "2026-1",
+      "eva": [
+        {
+          "nombre": "Prácticas calificadas",
+          "total": 6,
+          "eliminable": 1,
+          "peso": 3,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Prácticas dirigidas",
+          "total": 14,
+          "eliminable": 2,
+          "peso": 2,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Exámen 1",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 3,
+          "sePromedia": false
+        },
+        {
+          "nombre": "Exámen 2",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 4,
+          "sePromedia": false
+        }
+      ]
+    },
+    {
+      "nombre": "TA - Trabajo académico",
+      "clave": "1LIN16",
+      "creditos": 3,
+      "facultad": "EEGGCC",
+      "update": "2026-1",
+      "eva": [
+        {
+          "nombre": "Informe",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 1,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Avances",
+          "total": 2,
+          "eliminable": 0,
+          "peso": 1,
+          "sePromedia": false
+        },
+        {
+          "nombre": "Exámenes",
+          "total": 2,
+          "eliminable": 0,
+          "peso": 2,
+          "sePromedia": false
+        },
+        {
+          "nombre": "Trabajo final",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 2,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Evaluación permanente",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 1,
+          "sePromedia": true
+        }
+      ]
+    },
+    {
+      "nombre": "CFIL - Ciencia y filosofía",
+      "clave": "1FIL01",
+      "creditos": 3,
+      "facultad": "EEGGCC",
+      "update": "2026-1",
+      "eva": [
+        {
+          "nombre": "Prácticas calificadas",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 3,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Debate",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 2,
+          "sePromedia": false
+        },
+        {
+          "nombre": "Exámen 1",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 2,
+          "sePromedia": false
+        },
+        {
+          "nombre": "Exámen 2",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 3,
+          "sePromedia": false
+        }
+      ]
+    },
+    {
+      "nombre": "MYLP - Motivación y liderazgo personal",
+      "clave": "1PSI02",
+      "creditos": 2,
+      "facultad": "EEGGCC",
+      "update": "2026-1",
+      "eva": [
+        {
+          "nombre": "Control de Lectura",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 4,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Participación",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 5,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Exámenen 1",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 5,
+          "sePromedia": false
+        },
+        {
+          "nombre": "Exámenen 2",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 6,
+          "sePromedia": false
+        }
+      ]
+    },
+    {
+      "nombre": "FA1 - Física 1",
+      "clave": "1FIS02",
+      "creditos": 4.5,
+      "facultad": "EEGGCC",
+      "update": "2026-1",
+      "eva": [
+        {
+          "nombre": "Prácticas",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 3,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Exámen 1",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 3,
+          "sePromedia": false
+        },
+        {
+          "nombre": "Exámen 2",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 4,
+          "sePromedia": false
+        }
+      ]
+    },
+    {
+      "nombre": "FA2 - Física 2",
+      "clave": "1FIS04",
+      "creditos": 4.5,
+      "facultad": "EEGGCC",
+      "update": "2026-1",
+      "eva": [
+        {
+          "nombre": "Prácticas",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 4,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Exámenes",
+          "total": 2,
+          "eliminable": 0,
+          "peso": 3,
+          "sePromedia": false
+        }
+      ]
+    },
+    {
+      "nombre": "FA3 - Física 3",
+      "clave": "1FIS06",
+      "creditos": 4.5,
+      "facultad": "EEGGCC",
+      "update": "2026-1",
+      "eva": [
+        {
+          "nombre": "Prácticas",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 4,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Exámenes",
+          "total": 2,
+          "eliminable": 0,
+          "peso": 3,
+          "sePromedia": false
+        }
+      ]
+    },
+    {
+      "nombre": "LABFA1 - Laboratorio de física 1",
+      "clave": "1FIS03",
+      "creditos": 0.5,
+      "facultad": "EEGGCC",
+      "update": "2026-1",
+      "eva": [
+        {
+          "nombre": "Prácticas",
+          "total": 6,
+          "eliminable": 1,
+          "peso": 1,
+          "sePromedia": true
+        }
+      ]
+    },
+    {
+      "nombre": "CALINT - Cálculo integral",
+      "clave": "1MAT07",
+      "creditos": 4.5,
+      "facultad": "EEGGCC",
+      "update": "2026-1",
+      "eva": [
+        {
+          "nombre": "Prácticas calificadas",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 3,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Prácticas dirigidas",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 1,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Exámenes",
+          "total": 2,
+          "eliminable": 0,
+          "peso": 3,
+          "sePromedia": false
+        }
+      ]
+    },
+    {
+      "nombre": "CALVA - Cálculo en varias variables",
+      "clave": "1MAT08",
+      "creditos": 4.5,
+      "facultad": "EEGGCC",
+      "update": "2026-1",
+      "eva": [
+        {
+          "nombre": "Prácticas calificadas",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 3,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Prácticas dirigidas",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 1,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Exámenes",
+          "total": 2,
+          "eliminable": 0,
+          "peso": 3,
+          "sePromedia": false
+        }
+      ]
+    },
+    {
+      "nombre": "CALVEC - Cálculo vectorial",
+      "clave": "1MAT23",
+      "creditos": 4.5,
+      "facultad": "EEGGCC",
+      "update": "2026-1",
+      "eva": [
+        {
+          "nombre": "Prácticas calificadas",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 3,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Prácticas dirigidas",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 1,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Exámenes",
+          "total": 2,
+          "eliminable": 0,
+          "peso": 3,
+          "sePromedia": false
+        }
+      ]
+    },
+    {
+      "nombre": "FUNPRO - Fundamentos de programación",
+      "clave": "1INF01",
+      "creditos": 3,
+      "facultad": "EEGGCC",
+      "update": "2026-1",
+      "eva": [
+        {
+          "nombre": "Laboratorios",
+          "total": 10,
+          "eliminable": 1,
+          "peso": 5,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Exámen 1",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 2,
+          "sePromedia": false
+        },
+        {
+          "nombre": "Exámen 2",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 3,
+          "sePromedia": false
+        }
+      ]
+    },
+    {
+      "nombre": "TP - Técnicas de programación",
+      "clave": "1INF02",
+      "creditos": 3,
+      "facultad": "EEGGCC",
+      "update": "2026-1",
+      "eva": [
+        {
+          "nombre": "Laboratorios",
+          "total": 10,
+          "eliminable": 1,
+          "peso": 1,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Exámen 1",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 1,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Exámen 2",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 1,
+          "sePromedia": true
+        }
+      ]
+    },
+    {
+      "nombre": "LABFA2 - Laboratorio de física 2",
+      "clave": "1FIS04",
+      "creditos": 0.5,
+      "facultad": "EEGGCC",
+      "update": "2026-1",
+      "eva": [
+        {
+          "nombre": "Prácticas",
+          "total": 6,
+          "eliminable": 1,
+          "peso": 1,
+          "sePromedia": true
+        }
+      ]
+    },
+    {
+      "nombre": "LABFA3 - Laboratorio de física 3",
+      "clave": "1FIS07",
+      "creditos": 0.5,
+      "facultad": "EEGGCC",
+      "update": "2026-1",
+      "eva": [
+        {
+          "nombre": "Prácticas",
+          "total": 6,
+          "eliminable": 1,
+          "peso": 1,
+          "sePromedia": true
+        }
+      ]
+    },
+    {
+      "nombre": "CALA - Cálculo Aplicado",
+      "clave": "1MAT09",
+      "creditos": 4.5,
+      "facultad": "EEGGCC",
+      "update": "2026-1",
+      "eva": [
+        {
+          "nombre": "Prácticas calificadas",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 3,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Prácticas dirigidas",
+          "total": 4,
+          "eliminable": 1,
+          "peso": 1,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Exámenes",
+          "total": 2,
+          "eliminable": 0,
+          "peso": 3,
+          "sePromedia": false
+        }
+      ]
+    },
+    {
+      "nombre": "ESTATICA - Estática",
+      "clave": "ING135",
+      "creditos": 5,
+      "facultad": "EEGGCC",
+      "update": "2026-1",
+      "eva": [
+        {
+          "nombre": "Prácticas",
+          "total": 7,
+          "eliminable": 1,
+          "peso": 3,
+          "sePromedia": true
+        },
+        {
+          "nombre": "Exámen 1",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 3,
+          "sePromedia": false
+        },
+        {
+          "nombre": "Exámen 2",
+          "total": 1,
+          "eliminable": 0,
+          "peso": 4,
+          "sePromedia": false
+        }
+      ]
+    }
+  ]
+}
