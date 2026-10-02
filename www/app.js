@@ -1,842 +1,456 @@
-﻿const STORAGE_KEY = "notas-pucp-ciencias-v5";
+(function () {
+  "use strict";
+  const engine = GradeEngine;
+  const store = StateStore;
+  const catalog = CourseCatalog.courses;
+  const backupLimit = 2 * 1024 * 1024;
+  const $ = (id) => document.getElementById(id);
+  const html = (value) => String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]));
+  const normalize = (text) => String(text || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+  const display = (number, digits = 2) => Number.isFinite(number) ? String(Number(number.toFixed(digits))) : "--";
+  let storage;
+  try { storage = window.localStorage; } catch {}
+  const loaded = store.load(storage, catalog);
+  let state = loaded.state;
+  let courses;
+  let courseMap;
+  let searchIndex;
+  let saveTimer;
+  let summaryFrame;
+  let formulaDirty = true;
+  let menuOpen = false;
+  let statElements = new Map();
+  let installPrompt;
+  let messageTimer;
+  let choiceSelect;
+  let choiceTrigger;
+  const selectControls = new WeakMap();
+  const choiceTargets = new WeakMap();
+  const navigation = Array.from(document.querySelectorAll("[data-nav-target]"));
+  const screens = Array.from(document.querySelectorAll("[data-screen]"));
 
-function topListComponent(id, label, total, keep, weight, shortLabel, note) {
-  return { id, label, type: "top-list", total, keep, weight, shortLabel, note };
-}
-
-function singleComponent(id, label, weight, shortLabel, note) {
-  return { id, label, type: "single", total: 1, keep: 1, weight, shortLabel, note };
-}
-
-function groupComponent(id, label, total, weight, shortLabel, note) {
-  return { id, label, type: "group", total, keep: total, weight, shortLabel, note };
-}
-
-function mathCommonCourse(id, code, name) {
-  return {
-    id,
-    code,
-    name,
-    summary: "Curso con practicas calificadas, practicas dirigidas y un bloque de examenes.",
-    formulaText: "[3(PC mejores 3/4) + 1(PD mejores 3/4) + 3(promedio de 2 examenes) + 3(promedio de 2 examenes)] / 10",
-    formulaCompact: "[3 * PC + 1 * PD + 6 * EX] / 10",
-    divisor: 10,
-    components: [
-      topListComponent("pc", "Practicas calificadas", 4, 3, 3, "PC"),
-      topListComponent("pd", "Practicas dirigidas", 4, 3, 1, "PD"),
-      groupComponent("ex", "Examenes", 2, 6, "EX")
-    ]
-  };
-}
-
-function labPhysicsCourse(id, code, name) {
-  return {
-    id,
-    code,
-    name,
-    summary: "El promedio se calcula con las 5 practicas mas altas sobre un total de 6.",
-    formulaText: "[1(promedio de las cinco practicas con mayor nota de un total de 6 practicas)] / 1",
-    formulaCompact: "[1 * LAB] / 1",
-    divisor: 1,
-    components: [
-      topListComponent("lab", "Practicas", 6, 5, 1, "LAB")
-    ]
-  };
-}
-
-const courses = [
-  mathCommonCourse("amga", "AMGA", "Algebra Matricial y Geometria Analitica"),
-  {
-    id: "coac",
-    code: "COAC",
-    name: "Comunicacion Academica",
-    summary: "Incluye practicas, trabajo final, evaluacion permanente y un bloque de examenes.",
-    formulaText: "[4(PC mejores 4/5) + 1(Trabajo final) + 1(Evaluacion permanente) + 2(promedio de 2 examenes) + 2(promedio de 2 examenes)] / 10",
-    formulaCompact: "[4 * PC + 1 * TF + 1 * EP + 4 * EX] / 10",
-    divisor: 10,
-    components: [
-      topListComponent("pc", "Practicas calificadas", 5, 4, 4, "PC"),
-      singleComponent("tf", "Trabajo final", 1, "TF"),
-      singleComponent("ep", "Evaluacion permanente", 1, "EP"),
-      groupComponent("ex", "Examenes", 2, 4, "EX")
-    ]
-  },
-  {
-    id: "qui1",
-    code: "QUI1",
-    name: "Quimica 1",
-    summary: "Usa practicas calificadas, practicas dirigidas y un bloque de examenes.",
-    formulaText: "[5(PC mejores 3/4) + 3(PD mejores 3/4) + 6(promedio de 2 examenes) + 6(promedio de 2 examenes)] / 20",
-    formulaCompact: "[5 * PC + 3 * PD + 12 * EX] / 20",
-    divisor: 20,
-    components: [
-      topListComponent("pc", "Practicas calificadas", 4, 3, 5, "PC"),
-      topListComponent("pd", "Practicas dirigidas", 4, 3, 3, "PD"),
-      groupComponent("ex", "Examenes", 2, 12, "EX")
-    ]
-  },
-  {
-    id: "labqui1",
-    code: "LABQUI1",
-    name: "Laboratorio de Quimica 1",
-    summary: "Considera solo las 5 mejores practicas del laboratorio.",
-    formulaText: "[1(promedio de las cinco practicas con mayor nota de un total de 6 practicas)] / 1",
-    formulaCompact: "[1 * LAB] / 1",
-    divisor: 1,
-    components: [
-      topListComponent("lab", "Practicas", 6, 5, 1, "LAB")
-    ]
-  },
-  mathCommonCourse("fucal", "FUCAL", "Fundamentos de Calculo"),
-  {
-    id: "fufis",
-    code: "FUFIS",
-    name: "Fundamentos de Fisica",
-    summary: "Curso con practicas calificadas y un bloque de examenes.",
-    formulaText: "[4(PC mejores 4/5) + 3(promedio de 2 examenes) + 3(promedio de 2 examenes)] / 10",
-    formulaCompact: "[4 * PC + 6 * EX] / 10",
-    divisor: 10,
-    components: [
-      topListComponent("pc", "Practicas calificadas", 5, 4, 4, "PC"),
-      groupComponent("ex", "Examenes", 2, 6, "EX")
-    ]
-  },
-  mathCommonCourse("caldif", "CALDIF", "Calculo Diferencial"),
-  mathCommonCourse("calint", "CALINT", "Calculo Integral"),
-  mathCommonCourse("calva", "CALVA", "Calculo en Varias Variables"),
-  mathCommonCourse("calvec", "CALVEC", "Calculo Vectorial"),
-  mathCommonCourse("cala", "CALA", "Calculo Aplicado"),
-  {
-    id: "dibujo",
-    code: "DIBUJO",
-    name: "Dibujo en Ingenieria",
-    summary: "Combina practicas calificadas, practicas dirigidas y dos examenes individuales.",
-    formulaText: "[3(PC mejores 5/6) + 2(PD mejores 12/14) + 3(nota del primer examen) + 4(nota del segundo examen)] / 12",
-    formulaCompact: "[3 * PC + 2 * PD + 3 * EX1 + 4 * EX2] / 12",
-    divisor: 12,
-    components: [
-      topListComponent("pc", "Practicas calificadas", 6, 5, 3, "PC"),
-      topListComponent("pd", "Practicas dirigidas", 14, 12, 2, "PD"),
-      singleComponent("ex1", "Primer examen", 3, "EX1"),
-      singleComponent("ex2", "Segundo examen", 4, "EX2")
-    ]
-  },
-  {
-    id: "ta",
-    code: "TA",
-    name: "Trabajo Academico",
-    summary: "Incluye informe, avances, examenes, trabajo final y evaluacion permanente.",
-    formulaText: "[1(nota del informe) + 1(primer avance) + 1(segundo avance) + 2(promedio de 2 examenes) + 2(promedio de 2 examenes) + 2(nota del trabajo final) + 1(evaluacion permanente)] / 10",
-    formulaCompact: "[1 * INF + 1 * A1 + 1 * A2 + 4 * EX + 2 * TF + 1 * EP] / 10",
-    divisor: 10,
-    components: [
-      singleComponent("inf", "Informe", 1, "INF"),
-      singleComponent("a1", "Primer avance", 1, "A1"),
-      singleComponent("a2", "Segundo avance", 1, "A2"),
-      groupComponent("ex", "Examenes", 2, 4, "EX"),
-      singleComponent("tf", "Trabajo final", 2, "TF"),
-      singleComponent("ep", "Evaluacion permanente", 1, "EP")
-    ]
-  },
-  {
-    id: "cfil",
-    code: "CFIL",
-    name: "Ciencia y Filosofia",
-    summary: "Incluye practicas calificadas, debate y dos examenes individuales.",
-    formulaText: "[3(PC mejores 3/4) + 2(nota de debate) + 2(nota del primer examen) + 3(nota del segundo examen)] / 10",
-    formulaCompact: "[3 * PC + 2 * DEB + 2 * EX1 + 3 * EX2] / 10",
-    divisor: 10,
-    components: [
-      topListComponent("pc", "Practicas calificadas", 4, 3, 3, "PC"),
-      singleComponent("deb", "Nota de debate", 2, "DEB"),
-      singleComponent("ex1", "Primer examen", 2, "EX1"),
-      singleComponent("ex2", "Segundo examen", 3, "EX2")
-    ]
-  },
-  {
-    id: "mylp",
-    code: "MYLP",
-    name: "Motivacion y Liderazgo Personal",
-    summary: "Control de lectura, participacion y dos examenes individuales.",
-    formulaText: "[4(control de lectura) + 5(participacion) + 5(primer examen) + 6(segundo examen)] / 20",
-    formulaCompact: "[4 * CL + 5 * PAR + 5 * EX1 + 6 * EX2] / 20",
-    divisor: 20,
-    components: [
-      singleComponent("cl", "Control de lectura", 4, "CL"),
-      singleComponent("par", "Participacion", 5, "PAR"),
-      singleComponent("ex1", "Primer examen", 5, "EX1"),
-      singleComponent("ex2", "Segundo examen", 6, "EX2")
-    ]
-  },
-  {
-    id: "fa1",
-    code: "FA1",
-    name: "Fisica 1",
-    summary: "Cada practica debe ingresarse ya sumada como PC + PD sobre 20.",
-    formulaText: "[3(promedio de las tres practicas con mayor nota de un total de 4 practicas) + 3(nota del primer examen) + 4(nota del segundo examen)] / 10",
-    formulaCompact: "[3 * PR + 3 * EX1 + 4 * EX2] / 10",
-    divisor: 10,
-    components: [
-      topListComponent("pr", "Practicas", 4, 3, 3, "PR", "Cada practica debe ingresarse como la suma de PC + PD, con maximo 20."),
-      singleComponent("ex1", "Primer examen", 3, "EX1"),
-      singleComponent("ex2", "Segundo examen", 4, "EX2")
-    ]
-  },
-  {
-    id: "fa2",
-    code: "FA2",
-    name: "Fisica 2",
-    summary: "Cada practica debe ingresarse ya sumada como PC + PD sobre 20.",
-    formulaText: "[4(promedio de las tres practicas con mayor nota de un total de 4 practicas) + 3(promedio de 2 examenes) + 3(promedio de 2 examenes)] / 10",
-    formulaCompact: "[4 * PR + 6 * EX] / 10",
-    divisor: 10,
-    components: [
-      topListComponent("pr", "Practicas", 4, 3, 4, "PR", "Cada practica debe ingresarse como la suma de PC + PD, con maximo 20."),
-      groupComponent("ex", "Examenes", 2, 6, "EX")
-    ]
-  },
-  {
-    id: "fa3",
-    code: "FA3",
-    name: "Fisica 3",
-    summary: "Cada practica debe ingresarse ya sumada como PC + PD sobre 20.",
-    formulaText: "[4(promedio de las tres practicas con mayor nota de un total de 4 practicas) + 3(promedio de 2 examenes) + 3(promedio de 2 examenes)] / 10",
-    formulaCompact: "[4 * PR + 6 * EX] / 10",
-    divisor: 10,
-    components: [
-      topListComponent("pr", "Practicas", 4, 3, 4, "PR", "Cada practica debe ingresarse como la suma de PC + PD, con maximo 20."),
-      groupComponent("ex", "Examenes", 2, 6, "EX")
-    ]
-  },
-  labPhysicsCourse("labfa1", "LABFA1", "Laboratorio de Fisica 1"),
-  labPhysicsCourse("labfa2", "LABFA2", "Laboratorio de Fisica 2"),
-  labPhysicsCourse("labfa3", "LABFA3", "Laboratorio de Fisica 3"),
-  {
-    id: "estatica",
-    code: "ESTATICA",
-    name: "Estatica",
-    summary: "Incluye practicas y dos examenes individuales.",
-    formulaText: "[3(promedio de las siete practicas con mayor nota de un total de 8 practicas) + 3(nota del primer examen) + 4(nota del segundo examen)] / 10",
-    formulaCompact: "[3 * PR + 3 * EX1 + 4 * EX2] / 10",
-    divisor: 10,
-    components: [
-      topListComponent("pr", "Practicas", 8, 7, 3, "PR"),
-      singleComponent("ex1", "Primer examen", 3, "EX1"),
-      singleComponent("ex2", "Segundo examen", 4, "EX2")
-    ]
-  },
-  {
-    id: "funpro",
-    code: "FUNPRO",
-    name: "Fundamentos de Programacion",
-    summary: "Usa laboratorios y dos examenes individuales.",
-    formulaText: "[5(promedio de los nueve laboratorios con mayor nota de un total de 10 laboratorios) + 2(nota del primer examen) + 3(nota del segundo examen)] / 10",
-    formulaCompact: "[5 * LAB + 2 * EX1 + 3 * EX2] / 10",
-    divisor: 10,
-    components: [
-      topListComponent("lab", "Laboratorios", 10, 9, 5, "LAB"),
-      singleComponent("ex1", "Primer examen", 2, "EX1"),
-      singleComponent("ex2", "Segundo examen", 3, "EX2")
-    ]
-  },
-  {
-    id: "tecpro",
-    code: "TECPRO",
-    name: "Tecnicas de Programacion",
-    summary: "Usa laboratorios y dos examenes individuales.",
-    formulaText: "[1(promedio de los nueve laboratorios con mayor nota de un total de 10 laboratorios) + 1(nota del primer examen) + 1(nota del segundo examen)] / 3",
-    formulaCompact: "[1 * LAB + 1 * EX1 + 1 * EX2] / 3",
-    divisor: 3,
-    components: [
-      topListComponent("lab", "Laboratorios", 10, 9, 1, "LAB"),
-      singleComponent("ex1", "Primer examen", 1, "EX1"),
-      singleComponent("ex2", "Segundo examen", 1, "EX2")
-    ]
+  function syncSelectControls() {
+    if (!$("choice-dialog").showModal) return;
+    document.querySelectorAll("select").forEach((select) => {
+      let button = selectControls.get(select);
+      if (!button) {
+        button = document.createElement("button");
+        button.type = "button";
+        button.className = "choice-trigger";
+        button.innerHTML = '<span></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+        button.setAttribute("aria-haspopup", "dialog");
+        button.setAttribute("aria-controls", "choice-dialog");
+        button.setAttribute("aria-expanded", "false");
+        select.after(button);
+        select.hidden = true;
+        selectControls.set(select, button);
+        choiceTargets.set(button, select);
+      }
+      const value = select.selectedOptions[0]?.textContent || "Elige una opción";
+      button.querySelector("span").textContent = value;
+      button.disabled = select.disabled;
+    });
   }
-];
+  function openChoices(button) {
+    choiceSelect = choiceTargets.get(button);
+    if (!choiceSelect) return;
+    choiceTrigger = button;
+    $("choice-title").textContent = choiceSelect.closest("label")?.querySelector("span")?.textContent || "Elige una opción";
+    $("choice-options").innerHTML = Array.from(choiceSelect.options).map((option, index) => `<button class="choice-option ${option.selected ? "active" : ""}" type="button" data-choice-index="${index}" aria-pressed="${option.selected}" ${option.disabled ? "disabled" : ""}>${html(option.textContent)}</button>`).join("");
+    button.setAttribute("aria-expanded", "true");
+    $("choice-dialog").showModal();
+    $("choice-options").querySelector(".active:not(:disabled)")?.focus();
+  }
 
-const state = loadState();
-state.selectedCourseId = state.selectedCourseId || courses[0].id;
-state.activeScreen = state.activeScreen || "calculator";
-state.theme = state.theme || "light";
-state.values = state.values || {};
-state.target = state.target || "11";
-state.courseQuery = state.courseQuery || "";
-state.menuOpen = false;
-
-const els = {
-  body: document.body,
-  courseCode: document.querySelector("#course-code"),
-  courseName: document.querySelector("#course-name"),
-  courseSummary: document.querySelector("#course-summary"),
-  courseSearch: document.querySelector("#course-search"),
-  courseList: document.querySelector("#course-list"),
-  calculatorContent: document.querySelector("#calculator-content"),
-  exactGrade: document.querySelector("#exact-grade"),
-  officialGrade: document.querySelector("#official-grade"),
-  statusCopy: document.querySelector("#status-copy"),
-  statusLabel: document.querySelector("#status-label"),
-  statusDetail: document.querySelector("#status-detail"),
-  targetGrade: document.querySelector("#target-grade"),
-  pendingSelect: document.querySelector("#pending-select"),
-  neededGrade: document.querySelector("#needed-grade"),
-  neededCopy: document.querySelector("#needed-copy"),
-  formulaLibrary: document.querySelector("#formula-library"),
-  clearCourse: document.querySelector("#clear-course"),
-  clearCurrentSettings: document.querySelector("#clear-current-settings"),
-  clearAllSettings: document.querySelector("#clear-all-settings"),
-  menuToggle: document.querySelector("#menu-toggle"),
-  menuLayer: document.querySelector("#menu-layer"),
-  menuDismiss: document.querySelector("#menu-dismiss"),
-  menuNavItems: Array.from(document.querySelectorAll("[data-nav-target]")),
-  screens: Array.from(document.querySelectorAll("[data-screen]")),
-  themeOptions: Array.from(document.querySelectorAll("[data-theme]")),
-  quickThemeToggle: document.querySelector("#quick-theme-toggle"),
-  quickThemeIcon: document.querySelector("#quick-theme-icon")
-};
-
-init();
-
-function init() {
-  applyTheme();
-  attachGlobalEvents();
-  renderCourseList();
-  renderFormulaLibrary();
-  renderCurrentCourse();
-  renderActiveScreen();
-}
-
-function attachGlobalEvents() {
-  els.clearCourse.addEventListener("click", clearCurrentCourse);
-  els.clearCurrentSettings.addEventListener("click", clearCurrentCourse);
-
-  els.clearAllSettings.addEventListener("click", () => {
-    state.values = {};
-    state.target = "11";
-    state.theme = "light";
-    state.activeScreen = "calculator";
-    state.selectedCourseId = courses[0].id;
-    state.courseQuery = "";
-    persistState();
-    els.targetGrade.value = state.target;
-    els.courseSearch.value = state.courseQuery;
-    applyTheme();
+  function flushState() {
+    clearTimeout(saveTimer);
+    if (!store.save(storage, state)) {
+      $("storage-notice").hidden = false;
+      $("storage-notice").textContent = "El navegador no permite guardar los cambios. Descarga una copia desde Ajustes antes de cerrar la app.";
+    }
+  }
+  function persist(immediate = false) {
+    clearTimeout(saveTimer);
+    if (immediate) flushState();
+    else saveTimer = setTimeout(flushState, 250);
+  }
+  function message(text) {
+    clearTimeout(messageTimer);
+    $("app-message").textContent = text;
+    $("app-message").hidden = false;
+    messageTimer = setTimeout(() => { $("app-message").hidden = true; }, 7000);
+  }
+  function rebuildCourses() {
+    courses = catalog.concat(state.customCourses);
+    courseMap = new Map(courses.map((course) => [course.id, course]));
+    searchIndex = new Map(courses.map((course) => [course.id, normalize([course.code, course.name, course.universityCode, course.faculty, ...(course.aliases || [])].join(" "))]));
+    const faculties = [...new Set(courses.map((course) => course.faculty))];
+    if (!faculties.includes(state.faculty)) state.faculty = "";
+    $("faculty-filter").innerHTML = '<option value="">Todas las facultades</option>' + faculties.map((faculty) => `<option value="${html(faculty)}">${html(faculty === "EEGGCC" ? "Estudios Generales Ciencias" : faculty)}</option>`).join("");
+    $("faculty-filter").value = state.faculty;
+    syncSelectControls();
+    formulaDirty = true;
+  }
+  function selectedCourse() { return courseMap.get(state.selectedCourseId) || courses[0]; }
+  function courseValues() { return state.values[selectedCourse().id] || {}; }
+  function switchScreen(screen, focus = true) {
+    state.activeScreen = screen;
+    screens.forEach((element) => { const active = element.dataset.screen === screen; element.classList.toggle("active", active); element.setAttribute("aria-hidden", String(!active)); });
+    navigation.forEach((button) => { const active = button.dataset.navTarget === screen; button.classList.toggle("active", active); button.setAttribute("aria-current", active ? "page" : "false"); });
+    if (screen === "formulas" && formulaDirty) renderFormulaLibrary();
+    if (screen === "custom") renderSavedCourses();
+    closeMenu(false);
+    persist();
+    if (focus) { $("main").focus({ preventScroll: true }); window.scrollTo({ top: 0, behavior: "auto" }); }
+  }
+  function closeMenu(focus = true) {
+    menuOpen = false;
+    $("menu-layer").hidden = true;
+    $("menu-toggle").setAttribute("aria-expanded", "false");
+    if (focus) $("menu-toggle").focus();
+  }
+  function renderCourseList() {
+    const query = normalize(state.courseQuery);
+    const filtered = courses.filter((course) => (!state.faculty || course.faculty === state.faculty) && (!query || searchIndex.get(course.id).includes(query)));
+    $("course-count").textContent = `${filtered.length} de ${courses.length} cursos y variantes`;
+    $("course-list").innerHTML = filtered.length ? filtered.map((course) => `
+      <button class="course-chip ${course.id === state.selectedCourseId ? "active" : ""}" type="button" data-course-id="${html(course.id)}" aria-pressed="${course.id === state.selectedCourseId}">
+        <small>${html(course.code)}${course.universityCode && course.code !== course.universityCode ? ` · ${html(course.universityCode)}` : ""}</small>
+        <strong>${html(course.name)}</strong>${course.variantLabel ? `<span class="component-note">${html(course.variantLabel)}</span>` : ""}
+      </button>`).join("") : '<div class="empty-state">No encontramos ese curso. Puedes crear uno con sus porcentajes.</div>';
+  }
+  function selectCourse(id) {
+    if (!courseMap.has(id)) return;
+    state.selectedCourseId = id;
+    persist(true);
     renderCourseList();
     renderCurrentCourse();
-    renderActiveScreen();
-  });
-
-  els.targetGrade.value = state.target;
-  els.targetGrade.addEventListener("input", () => {
-    state.target = sanitizeIntegerText(els.targetGrade.value, 11);
-    persistState();
-    updateSummaryForCurrentCourse();
-  });
-
-  els.targetGrade.addEventListener("blur", () => {
-    const normalized = String(clampInteger(state.target || "11", 0, 20));
-    state.target = normalized;
-    els.targetGrade.value = normalized;
-    persistState();
-    updateSummaryForCurrentCourse();
-  });
-
-  els.pendingSelect.addEventListener("change", updateSummaryForCurrentCourse);
-
-  els.courseSearch.value = state.courseQuery;
-  els.courseSearch.addEventListener("input", () => {
-    state.courseQuery = els.courseSearch.value;
-    persistState();
-    renderCourseList();
-  });
-
-  els.themeOptions.forEach((button) => {
-    button.addEventListener("click", () => {
-      state.theme = button.dataset.theme;
-      persistState();
-      applyTheme();
-    });
-  });
-
-  els.quickThemeToggle.addEventListener("click", () => {
-    state.theme = state.theme === "dark" ? "light" : "dark";
-    persistState();
-    applyTheme();
-  });
-
-  els.menuToggle.addEventListener("click", () => {
-    state.menuOpen = !state.menuOpen;
-    renderMenu();
-  });
-
-  els.menuDismiss.addEventListener("click", () => {
-    state.menuOpen = false;
-    renderMenu();
-  });
-
-  els.menuNavItems.forEach((button) => {
-    button.addEventListener("click", () => {
-      state.activeScreen = button.dataset.navTarget;
-      state.menuOpen = false;
-      persistState();
-      renderMenu();
-      renderActiveScreen();
-    });
-  });
-}
-
-function renderMenu() {
-  els.menuLayer.hidden = !state.menuOpen;
-  els.menuToggle.setAttribute("aria-expanded", state.menuOpen ? "true" : "false");
-}
-
-function renderCourseList() {
-  const query = normalizeText(state.courseQuery);
-  const filtered = courses.filter((course) => {
-    const haystack = normalizeText(`${course.code} ${course.name}`);
-    return !query || haystack.includes(query);
-  });
-
-  els.courseList.innerHTML = filtered.length
-    ? filtered.map((course) => `
-        <button class="course-chip ${course.id === state.selectedCourseId ? "active" : ""}" type="button" data-course-id="${course.id}">
-          <small>${course.code}</small>
-          <strong>${escapeHtml(course.name)}</strong>
-        </button>
-      `).join("")
-    : `<div class="empty-state">No se encontraron cursos con ese filtro.</div>`;
-
-  Array.from(els.courseList.querySelectorAll("[data-course-id]"))
-    .forEach((button) => {
-      button.addEventListener("click", () => {
-        state.selectedCourseId = button.dataset.courseId;
-        persistState();
-        renderCourseList();
-        renderCurrentCourse();
-      });
-    });
-}
-
-function renderCurrentCourse() {
-  const course = getSelectedCourse();
-  const values = getCourseValues(course.id);
-
-  els.courseCode.textContent = course.code;
-  els.courseName.textContent = course.name;
-  els.courseSummary.textContent = course.summary;
-
-  els.calculatorContent.innerHTML = course.components
-    .map((component) => renderComponentCard(component, values))
-    .join("");
-
-  attachCourseInputEvents(course);
-  updateSummaryForCurrentCourse();
-}
-
-function attachCourseInputEvents(course) {
-  Array.from(els.calculatorContent.querySelectorAll("[data-input-key]"))
-    .forEach((input) => {
-      input.addEventListener("input", () => {
-        setCourseValue(course.id, input.dataset.inputKey, input.value);
-        updateSummaryForCurrentCourse();
-      });
-
-      input.addEventListener("blur", () => {
-        const key = input.dataset.inputKey;
-        const mode = input.dataset.mode;
-        const limit = Number.parseInt(input.dataset.limit, 10);
-        const normalized = mode === "single"
-          ? normalizeSingleText(input.value)
-          : normalizeGroupText(input.value, limit);
-        input.value = normalized;
-        setCourseValue(course.id, key, normalized);
-        updateSummaryForCurrentCourse();
-      });
-    });
-}
-
-function renderComponentCard(component, values) {
-  const helper = buildComponentHelper(component);
-  const value = values[component.id] ?? "";
-
-  return `
-    <article class="component-card" data-component-id="${component.id}">
-      <div class="component-head">
-        <div>
-          <h3>${escapeHtml(component.label)}</h3>
-          <p class="component-note">${escapeHtml(helper)}</p>
-        </div>
-        <span class="stat-chip" data-stat-for="${component.id}">0/${component.total}</span>
-      </div>
-      <label class="field">
-        <span>${escapeHtml(component.type === "single" ? "Nota" : "Notas")}</span>
-        <input
-          data-input-key="${component.id}"
-          data-mode="${component.type === "single" ? "single" : "group"}"
-          data-limit="${component.total}"
-          type="text"
-          inputmode="decimal"
-          autocomplete="off"
-          placeholder="${escapeHtml(buildPlaceholder(component))}"
-          value="${escapeHtml(value)}"
-        />
-      </label>
-    </article>
-  `;
-}
-
-function renderFormulaLibrary() {
-  els.formulaLibrary.innerHTML = courses
-    .map((course) => {
-      const details = course.components.map((component) => {
-        if (component.type === "top-list") {
-          return `<li>${component.label}: se toman las ${component.keep} mejores notas de ${component.total}.</li>`;
-        }
-        if (component.type === "group") {
-          return `<li>${component.label}: se promedian ${component.total} notas como un solo bloque.</li>`;
-        }
-        return `<li>${component.label}: bloque individual con peso ${component.weight}.</li>`;
-      }).join("");
-
-      return `
-        <article class="formula-card">
-          <div>
-            <span class="section-tag">${course.code}</span>
-            <h3>${escapeHtml(course.name)}</h3>
-          </div>
-          <p>${escapeHtml(course.summary)}</p>
-          <p class="formula-expression">${escapeHtml(course.formulaText)}</p>
-          <p class="component-note">Forma compacta: ${escapeHtml(course.formulaCompact)}</p>
-          <ul class="formula-list">${details}</ul>
-        </article>
-      `;
-    })
-    .join("");
-}
-
-function renderActiveScreen() {
-  els.screens.forEach((screen) => {
-    screen.classList.toggle("active", screen.dataset.screen === state.activeScreen);
-  });
-
-  els.menuNavItems.forEach((item) => {
-    item.classList.toggle("active", item.dataset.navTarget === state.activeScreen);
-  });
-}
-
-function updateSummaryForCurrentCourse() {
-  const course = getSelectedCourse();
-  const values = getCourseValues(course.id);
-  const result = computeCourse(course, values);
-
-  updateComponentStats(course, result);
-  renderPendingOptions(course, result);
-  renderResults(result);
-  renderNeededGrade(course, result);
-}
-
-function updateComponentStats(course, result) {
-  course.components.forEach((component) => {
-    const stat = result.componentMap[component.id];
-    const host = els.calculatorContent.querySelector(`[data-stat-for="${component.id}"]`);
-    if (!host) {
-      return;
+  }
+  function finalRule(course) {
+    if (course.finalPrecision === 0 || course.finalMode === "truncate") return "Solo la parte entera";
+    if (course.finalMode === "exact") return "Mantener decimales";
+    return "Redondeo al entero";
+  }
+  function componentRule(component, course) {
+    const percentage = 100 * component.weight * (component.aggregation === "sum" ? component.keep : 1) / course.divisor;
+    const selection = component.keep < component.total ? `Las ${component.keep} mejores de ${component.total} notas.` : component.total > 1 ? `${component.total} notas.` : "Una nota.";
+    const aggregation = component.aggregation === "sum" && component.total > 1 ? ` Cada nota vale ${display(100 * component.weight / course.divisor)} %.` : "";
+    return `${selection} Peso: ${display(percentage)} %.${aggregation}${component.note ? ` ${component.note}` : ""}`;
+  }
+  function renderCurrentCourse() {
+    const course = selectedCourse();
+    const values = courseValues();
+    $("course-code").textContent = course.code;
+    $("course-name").textContent = course.name;
+    $("course-summary").textContent = [course.variantLabel, course.summary].filter(Boolean).join(" · ");
+    $("final-rule").textContent = finalRule(course);
+    $("edit-custom-course").hidden = !course.custom;
+    $("current-formula").textContent = engine.formula(course);
+    $("current-rules").innerHTML = course.components.map((component) => `<li><strong>${html(component.shortLabel)}</strong> · ${html(component.label)}: ${html(componentRule(component, course))}</li>`).join("");
+    $("calculator-content").innerHTML = course.components.map((component, index) => `
+      <article class="component-card" data-component-id="${html(component.id)}">
+        <div class="component-head"><div><h3>${html(component.label)}</h3><p class="component-note">${html(componentRule(component, course))}</p></div><span class="stat-chip" data-stat-for="${html(component.id)}"></span></div>
+        <label class="field"><span>${component.total === 1 ? "Nota" : "Notas separadas por espacios"}<span class="sr-only"> de ${html(component.label)}</span></span>
+          <input data-input-key="${html(component.id)}" id="grade-${index}" type="text" inputmode="decimal" autocomplete="off" maxlength="4000" aria-describedby="grade-error-${index}" placeholder="${component.total === 1 ? "Ej.: 17,5" : component.total === 2 ? "Ej.: 15 18" : "Ej.: 17 15 20 9"}" value="${html(values[component.id] || "")}" />
+        </label><p id="grade-error-${index}" class="validation-message" data-error-for="${html(component.id)}" hidden></p>
+      </article>`).join("");
+    statElements = new Map(course.components.map((component) => [component.id, {
+      stat: $("calculator-content").querySelector(`[data-stat-for="${component.id}"]`),
+      input: $("calculator-content").querySelector(`[data-input-key="${component.id}"]`),
+      error: $("calculator-content").querySelector(`[data-error-for="${component.id}"]`)
+    }]));
+    updateSummary();
+  }
+  function queueSummary() {
+    if (!summaryFrame) summaryFrame = requestAnimationFrame(() => { summaryFrame = null; updateSummary(); });
+  }
+  function updateSummary() {
+    const course = selectedCourse();
+    const result = engine.computeCourse(course, courseValues());
+    for (const component of course.components) {
+      const stat = result.componentMap[component.id];
+      const elements = statElements.get(component.id);
+      if (!stat || !elements) continue;
+      const shown = component.aggregation === "sum" ? stat.value / component.keep : stat.value;
+      elements.stat.textContent = `${stat.entered}/${stat.total} · ${stat.entered ? display(shown) : "--"}`;
+      elements.input.setAttribute("aria-invalid", String(Boolean(stat.error)));
+      elements.error.textContent = stat.error;
+      elements.error.hidden = !stat.error;
     }
-    host.textContent = `${stat.entered}/${stat.total} | ${stat.value.toFixed(2)}`;
-  });
-}
-
-function renderPendingOptions(course, result) {
-  const pendingComponents = course.components.filter((component) => result.componentMap[component.id].entered < component.total);
-  const previous = els.pendingSelect.value;
-
-  els.pendingSelect.innerHTML = pendingComponents.length
-    ? pendingComponents.map((component) => {
-        const stat = result.componentMap[component.id];
-        return `<option value="${component.id}">${escapeHtml(component.label)} (${stat.entered}/${stat.total})</option>`;
-      }).join("")
-    : `<option value="">Curso completo</option>`;
-
-  if (pendingComponents.some((component) => component.id === previous)) {
-    els.pendingSelect.value = previous;
-  }
-}
-
-function renderResults(result) {
-  els.exactGrade.textContent = result.exact.toFixed(2);
-  els.officialGrade.textContent = String(result.official);
-
-  if (result.official >= 11) {
-    els.statusLabel.textContent = "Aprobado";
-    els.statusCopy.textContent = "Tu nota oficial ya alcanza o supera 11.";
-    els.statusDetail.textContent = "El redondeo final se mantiene aprobado.";
-    return;
-  }
-
-  els.statusLabel.textContent = "Desaprobado";
-  els.statusCopy.textContent = "Con las notas registradas, incluyendo vacios como 0, aun no llegas a 11.";
-  els.statusDetail.textContent = "La nota minima aprobatoria es 11.";
-}
-
-function renderNeededGrade(course, result) {
-  const target = clampInteger(state.target || "11", 0, 20);
-  const pendingComponentId = els.pendingSelect.value;
-  const pendingComponents = course.components.filter((component) => result.componentMap[component.id].entered < component.total);
-
-  if (!pendingComponentId || !pendingComponents.length) {
-    els.neededGrade.textContent = "--";
-    els.neededCopy.textContent = "Ya no quedan bloques pendientes por estimar en este curso.";
-    return;
-  }
-
-  const otherPending = pendingComponents.filter((component) => component.id !== pendingComponentId);
-  if (otherPending.length) {
-    els.neededGrade.textContent = "--";
-    els.neededCopy.textContent = `Completa primero los otros bloques pendientes: ${otherPending.map((component) => component.label).join(", ")}. Luego podre estimar este bloque con precision.`;
-    return;
-  }
-
-  const required = findMinimumNeeded(course, pendingComponentId, target);
-  if (required == null) {
-    els.neededGrade.textContent = "--";
-    els.neededCopy.textContent = "Aunque completes ese bloque, la meta indicada no se alcanza solo con las notas restantes.";
-    return;
-  }
-
-  const selected = course.components.find((component) => component.id === pendingComponentId);
-  const missingCount = result.componentMap[pendingComponentId].total - result.componentMap[pendingComponentId].entered;
-  els.neededGrade.textContent = required.toFixed(1);
-  els.neededCopy.textContent = `Necesitas promediar ${required.toFixed(1)} en las ${missingCount} nota(s) restantes de ${selected.label.toLowerCase()} para llegar a ${target}.`;
-}
-
-function computeCourse(course, values) {
-  const componentMap = {};
-
-  course.components.forEach((component) => {
-    componentMap[component.id] = computeComponent(component, values);
-  });
-
-  const exact = course.components.reduce(
-    (sum, component) => sum + componentMap[component.id].value * component.weight,
-    0
-  ) / course.divisor;
-
-  return {
-    componentMap,
-    exact,
-    official: Math.round(exact)
-  };
-}
-
-function computeComponent(component, values) {
-  const grades = getEnteredGrades(component, values);
-  const completed = [...grades, ...Array.from({ length: Math.max(component.total - grades.length, 0) }, () => 0)];
-
-  if (component.type === "top-list") {
-    const ordered = [...completed].sort((left, right) => right - left);
-    const used = ordered.slice(0, component.keep);
-    const dropped = ordered.slice(component.keep);
-    return {
-      value: average(used),
-      entered: grades.length,
-      total: component.total,
-      dropped,
-      used
-    };
-  }
-
-  return {
-    value: average(completed),
-    entered: grades.length,
-    total: component.total,
-    dropped: [],
-    used: completed
-  };
-}
-
-function getEnteredGrades(component, values) {
-  const raw = values[component.id] ?? "";
-  if (component.type === "single") {
-    const grade = parseSingleText(raw);
-    return grade == null ? [] : [grade];
-  }
-  return parseGroupGrades(raw, component.total);
-}
-
-function findMinimumNeeded(course, componentId, target) {
-  const selected = course.components.find((component) => component.id === componentId);
-  const baseValues = getCourseValues(course.id);
-
-  for (let candidate = 0; candidate <= 20; candidate += 0.1) {
-    const testValues = { ...baseValues };
-    const existing = getEnteredGrades(selected, baseValues);
-    const remaining = selected.total - existing.length;
-    const completed = [...existing, ...Array.from({ length: remaining }, () => Number(candidate.toFixed(1)))];
-    testValues[selected.id] = completed.map(formatGradeValue).join(" ");
-    const result = computeCourse(course, testValues);
-    if (result.official >= target) {
-      return Number(candidate.toFixed(1));
+    $("official-grade").textContent = result.valid && result.entered ? display(result.official, 3) : "--";
+    $("exact-grade").textContent = result.valid && result.entered ? display(result.exact, 3) : "--";
+    $("official-label").textContent = result.complete ? "Nota final calculada" : "Nota final estimada";
+    $("exact-detail").textContent = course.finalPrecision == null ? "Promedio ponderado, antes de la regla final." : `Tras el truncado final: ${result.valid && result.entered ? display(result.beforeFinal, 3) : "--"}.`;
+    $("status-detail").textContent = `Nota aprobatoria: ${course.passGrade}.`;
+    if (!result.valid) { $("status-label").textContent = "Revisa las notas"; $("status-copy").textContent = "Corrige los campos indicados para calcular un resultado válido."; }
+    else if (!result.entered) { $("status-label").textContent = "Sin notas"; $("status-copy").textContent = "Ingresa tus notas para ver el resultado."; }
+    else {
+      $("status-label").textContent = result.complete ? result.passed ? "Aprobado" : "Desaprobado" : "Provisional";
+      $("status-copy").textContent = result.complete ? `Registraste las ${result.total} evaluaciones. ${result.passed ? "Alcanzas" : "Aún no alcanzas"} la nota aprobatoria.` : `${result.entered} de ${result.total} notas registradas. Las pendientes cuentan como 0 en esta estimación.`;
     }
+    renderNeededGrade(course, result);
+  }
+  function renderNeededGrade(course, result) {
+    const pending = course.components.filter((component) => result.componentMap[component.id]?.entered < component.total);
+    const signature = course.id + pending.map((c) => `${c.id}:${result.componentMap[c.id].entered}`).join("|");
+    if ($("pending-select").dataset.signature !== signature) {
+      const previous = $("pending-select").value;
+      $("pending-select").innerHTML = pending.length ? pending.map((c) => `<option value="${html(c.id)}">${html(c.label)} (${result.componentMap[c.id].entered}/${c.total})</option>`).join("") : '<option value="">Curso completo</option>';
+      if (pending.some((c) => c.id === previous)) $("pending-select").value = previous;
+      $("pending-select").dataset.signature = signature;
+    }
+    syncSelectControls();
+    $("needed-grade").textContent = "--";
+    const target = engine.number(state.target);
+    $("target-grade").setAttribute("aria-invalid", String(!Number.isFinite(target) || target > 20));
+    if (!Number.isFinite(target) || target < 0 || target > 20) { $("needed-copy").textContent = "Ingresa un objetivo entre 0 y 20."; return; }
+    if (!result.valid) { $("needed-copy").textContent = "Corrige las notas inválidas antes de estimar tu meta."; return; }
+    if (!pending.length) { $("needed-copy").textContent = "Ya registraste todas las notas de este curso."; return; }
+    const id = $("pending-select").value;
+    const otherPending = pending.filter((c) => c.id !== id);
+    if (otherPending.length) { $("needed-copy").textContent = `Completa los otros bloques para calcular esta meta: ${otherPending.map((c) => c.label).join(", ")}.`; return; }
+    const required = engine.findMinimumNeeded(course, courseValues(), id, target);
+    if (required == null) { $("needed-copy").textContent = "La meta no se alcanza con las notas restantes, incluso obteniendo 20."; return; }
+    const missing = result.componentMap[id].total - result.componentMap[id].entered;
+    $("needed-grade").textContent = required.toFixed(1);
+    $("needed-copy").textContent = missing === 1 ? `Necesitas al menos ${required.toFixed(1)} en la nota pendiente para llegar a ${target}.` : `Si obtienes la misma nota en las ${missing} evaluaciones pendientes, necesitas ${required.toFixed(1)} en cada una para llegar a ${target}.`;
+  }
+  function renderFormulaLibrary() {
+    const query = normalize($("formula-search").value);
+    const filtered = courses.filter((course) => !query || searchIndex.get(course.id).includes(query));
+    $("formula-library").innerHTML = filtered.length ? filtered.map((course) => `
+      <article class="formula-card"><div><span class="section-tag">${html(course.code)}</span><h3>${html(course.name)}</h3>${course.variantLabel ? `<p>${html(course.variantLabel)}</p>` : ""}</div>
+        <p class="formula-expression">${html(engine.formula(course))}</p><ul class="formula-list">${course.components.map((c) => `<li>${html(c.shortLabel)} · ${html(c.label)}: ${html(componentRule(c, course))}</li>`).join("")}</ul><p class="component-note">${html(finalRule(course))}. Nota aprobatoria: ${course.passGrade}.</p>
+        <button class="ghost-button" type="button" data-use-course="${html(course.id)}">Calcular este curso</button>
+      </article>`).join("") : '<p class="empty-state">No encontramos fórmulas con ese filtro.</p>';
+    formulaDirty = false;
+  }
+  function renderDraft() {
+    const draft = state.draft;
+    $("custom-name").value = draft.name;
+    $("custom-code").value = draft.code;
+    $("custom-pass").value = draft.passGrade;
+    $("custom-rounding").value = draft.rounding;
+    $("save-custom-course").textContent = draft.editingId ? "Guardar cambios y calcular" : "Guardar y calcular";
+    $("custom-components").innerHTML = draft.components.map((component, index) => `
+      <fieldset class="custom-block" data-block-id="${html(component.id)}"><legend>Bloque ${index + 1}</legend>
+        <div class="section-row"><label class="field grow"><span>Nombre de evaluación</span><input data-draft-field="label" type="text" maxlength="100" value="${html(component.label)}" placeholder="Ej.: Laboratorios" required /></label><button class="icon-button remove-block" data-remove-block="${html(component.id)}" type="button" aria-label="Eliminar bloque ${index + 1}" ${draft.components.length === 1 ? "disabled" : ""}>×</button></div>
+        <div class="block-numbers"><label class="field"><span>Cantidad</span><input data-draft-field="total" type="text" inputmode="numeric" maxlength="3" value="${html(component.total)}" required /></label><label class="field"><span>Descartar menores</span><input data-draft-field="drop" type="text" inputmode="numeric" maxlength="3" value="${html(component.drop)}" required /></label><label class="field"><span>Peso del bloque (%)</span><input data-draft-field="weight" type="text" inputmode="decimal" maxlength="20" value="${html(component.weight)}" required /></label></div>
+        <details class="calculation-options"><summary>Opciones de esta evaluación</summary><label class="field"><span>Decimales del promedio</span><select data-draft-field="precision"><option value="none">Mantener todos los decimales</option><option value="1">1 decimal (15,89 → 15,8)</option><option value="2">2 decimales (15,899 → 15,89)</option><option value="3">3 decimales (15,8999 → 15,899)</option><option value="0">Solo la parte entera (15,8 → 15)</option></select></label></details>
+      </fieldset>`).join("");
+    $("custom-components").querySelectorAll("[data-block-id]").forEach((block, i) => { block.querySelector("select").value = draft.components[i].precision; });
+    syncSelectControls();
+    $("custom-errors").hidden = true;
+    updateDraftSummary();
+  }
+  function updateDraftSummary() {
+    const weights = state.draft.components.map((component) => engine.number(component.weight));
+    const valid = weights.every((weight) => Number.isFinite(weight) && weight > 0);
+    const total = weights.reduce((sum, weight) => sum + (Number.isFinite(weight) ? weight : 0), 0);
+    $("custom-weight-total").textContent = `${display(total, 4)} / 100 %`;
+    $("custom-weight-progress").value = Math.max(0, Math.min(100, total));
+    $("custom-weight-total").classList.toggle("weight-valid", valid && Math.abs(total - 100) < 1e-7);
+    $("custom-weight-copy").textContent = !valid ? "Cada bloque necesita un peso mayor que cero." : Math.abs(total - 100) < 1e-7 ? "Listo: los pesos suman 100 %." : total < 100 ? `Falta asignar ${display(100 - total, 4)} %.` : `Reduce los pesos en ${display(total - 100, 4)} %.`;
+  }
+  function readDraftEvent(event) {
+    const input = event.target;
+    const fields = { "custom-name": "name", "custom-code": "code", "custom-pass": "passGrade", "custom-rounding": "rounding" };
+    if (fields[input.id]) state.draft[fields[input.id]] = input.value;
+    else if (input.dataset.draftField) {
+      const id = input.closest("[data-block-id]").dataset.blockId;
+      const component = state.draft.components.find((c) => c.id === id);
+      if (component) component[input.dataset.draftField] = input.value;
+    } else return;
+    $("custom-errors").hidden = true;
+    updateDraftSummary();
+    persist();
+  }
+  function startCustom(course) {
+    if (course) { state.draft = store.courseToDraft(course); renderDraft(); }
+    switchScreen("custom");
+  }
+  function renderSavedCourses() {
+    $("saved-custom-courses").innerHTML = state.customCourses.length ? state.customCourses.map((course) => `<article class="saved-course"><span class="section-tag">${html(course.code)}</span><h4>${html(course.name)}</h4><p class="component-note">${course.components.length} bloque(s) · ${course.components.reduce((sum, c) => sum + c.total, 0)} evaluaciones</p><div class="saved-actions"><button class="ghost-button" data-use-course="${html(course.id)}" type="button">Calcular</button><button class="ghost-button" data-edit-course="${html(course.id)}" type="button">Editar</button><button class="ghost-button danger" data-delete-course="${html(course.id)}" type="button">Eliminar</button></div></article>`).join("") : '<p class="empty-state">Tus cursos aparecerán aquí después de guardarlos.</p>';
+  }
+  function saveCustom(event) {
+    event.preventDefault();
+    const id = state.draft.editingId || `custom-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    const course = store.draftToCourse(state.draft, id);
+    const errors = engine.validateCourse(course);
+    if (!course.name) errors.unshift("Escribe el nombre del curso.");
+    if (!state.draft.editingId && state.customCourses.length >= 100) errors.unshift("Puedes guardar hasta 100 cursos personales. Edita o elimina uno antes de añadir otro.");
+    if (errors.length) { $("custom-errors").textContent = [...new Set(errors)].join(" "); $("custom-errors").hidden = false; $("custom-errors").scrollIntoView({ block: "center", behavior: "smooth" }); return; }
+    const existing = state.customCourses.findIndex((c) => c.id === id);
+    if (existing === -1) state.customCourses.push(course);
+    else state.customCourses[existing] = course;
+    const old = courseMap.get(id);
+    if (old && state.values[id]) for (const component of old.components) {
+      const replacement = course.components.find((c) => c.id === component.id);
+      if (!replacement || replacement.total !== component.total || replacement.keep !== component.keep || replacement.precision !== component.precision) delete state.values[id][component.id];
+    }
+    state.draft = store.courseToDraft(course);
+    state.courseQuery = "";
+    state.faculty = "";
+    $("course-search").value = "";
+    rebuildCourses();
+    selectCourse(id);
+    switchScreen("calculator");
+    renderDraft();
+    message(existing === -1 ? "Curso personalizado guardado. Ya puedes ingresar tus notas." : "Cambios guardados. Reingresa las notas de los bloques cuya cantidad o regla cambió.");
+  }
+  function confirmAction(copy) {
+    return new Promise((resolve) => {
+      const dialog = $("confirm-dialog");
+      if (!dialog.showModal) { resolve(window.confirm(copy)); return; }
+      $("confirm-copy").textContent = copy;
+      dialog.returnValue = "cancel";
+      dialog.addEventListener("close", () => resolve(dialog.returnValue === "confirm"), { once: true });
+      dialog.showModal();
+    });
+  }
+  async function clearCurrentCourse() {
+    if (!await confirmAction(`¿Limpiar todas las notas de ${selectedCourse().name}? La fórmula del curso se conserva.`)) return;
+    state.values[selectedCourse().id] = {};
+    persist(true);
+    renderCurrentCourse();
+  }
+  function applyTheme() {
+    document.body.dataset.theme = state.theme;
+    $("quick-theme-icon").textContent = state.theme === "dark" ? "☀" : "☾";
+    $("quick-theme-toggle").setAttribute("aria-label", state.theme === "dark" ? "Cambiar a modo diurno" : "Cambiar a modo oscuro");
+    document.querySelector('meta[name="theme-color"]').content = state.theme === "dark" ? "#071018" : "#eef4fb";
+    document.querySelectorAll("[data-theme-choice]").forEach((button) => { const active = button.dataset.themeChoice === state.theme; button.classList.toggle("active", active); button.setAttribute("aria-pressed", String(active)); });
+  }
+  async function importBackup(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    try {
+      if (file.size > backupLimit) throw new Error("La copia supera el máximo de 2 MB.");
+      const restored = store.validateBackup(JSON.parse(await file.text()), catalog);
+      if (!await confirmAction("¿Restaurar esta copia? Reemplazará tus notas y cursos personales de este dispositivo. Descarga una copia actual si deseas conservarlos.")) return;
+      state = restored;
+      rebuildCourses();
+      $("course-search").value = state.courseQuery;
+      $("target-grade").value = state.target;
+      applyTheme(); renderDraft(); renderCourseList(); renderCurrentCourse(); switchScreen(state.activeScreen);
+      persist(true);
+      message("Copia de seguridad restaurada.");
+    } catch (error) { message(error instanceof SyntaxError ? "El archivo no contiene una copia JSON válida." : error.message); }
+    finally { event.target.value = ""; }
+  }
+  async function exportBackup() {
+    const button = $("export-data");
+    button.disabled = true;
+    try {
+      flushState();
+      const data = JSON.stringify({ app: "notas-pucp-ciencias", version: 1, state }, null, 2);
+      const blob = new Blob([data], { type: "application/json" });
+      if (blob.size > backupLimit) throw new Error("La copia supera el máximo de 2 MB. Reduce los datos antes de descargarla.");
+      if (window.Capacitor?.isNativePlatform()) {
+        const plugin = window.Capacitor.Plugins?.BackupFile;
+        if (!plugin?.save) throw new Error("No se pudo abrir el guardado de archivos. Instala el APK actualizado e inténtalo de nuevo.");
+        const result = await plugin.save({ data });
+        message(result.saved ? "Copia de seguridad guardada." : "Guardado cancelado.");
+      } else {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url; link.download = "notas-pucp-copia.json"; document.body.appendChild(link); link.click(); link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+        message("Copia preparada: notas-pucp-copia.json.");
+      }
+    } catch (error) { message(error.message || "No se pudo guardar la copia de seguridad."); }
+    finally { button.disabled = false; }
+  }
+  function attachEvents() {
+    document.addEventListener("click", (event) => {
+      const trigger = event.target.closest(".choice-trigger");
+      if (trigger) openChoices(trigger);
+    });
+    $("close-choice").addEventListener("click", () => $("choice-dialog").close());
+    $("choice-dialog").addEventListener("close", () => {
+      choiceTrigger?.setAttribute("aria-expanded", "false");
+      choiceTrigger?.focus({ preventScroll: true });
+      choiceSelect = null;
+      choiceTrigger = null;
+    });
+    $("choice-dialog").addEventListener("click", (event) => { if (event.target === $("choice-dialog")) $("choice-dialog").close(); });
+    $("choice-options").addEventListener("click", (event) => {
+      const option = event.target.closest("[data-choice-index]");
+      if (!option || !choiceSelect) return;
+      choiceSelect.selectedIndex = Number(option.dataset.choiceIndex);
+      choiceSelect.dispatchEvent(new Event("change", { bubbles: true }));
+      syncSelectControls();
+      $("choice-dialog").close();
+    });
+    $("choice-options").addEventListener("keydown", (event) => {
+      const options = Array.from($("choice-options").querySelectorAll("button:not(:disabled)"));
+      if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key) || !options.length) return;
+      event.preventDefault();
+      const index = options.indexOf(document.activeElement);
+      options[event.key === "Home" ? 0 : event.key === "End" ? options.length - 1 : (index + (event.key === "ArrowUp" ? -1 : 1) + options.length) % options.length].focus();
+    });
+    navigation.forEach((button) => button.addEventListener("click", () => switchScreen(button.dataset.navTarget)));
+    $("menu-toggle").addEventListener("click", () => { if (menuOpen) closeMenu(); else { menuOpen = true; $("menu-layer").hidden = false; $("menu-toggle").setAttribute("aria-expanded", "true"); $("menu-layer").querySelector(".menu-item").focus(); } });
+    $("menu-dismiss").addEventListener("click", () => closeMenu());
+    document.addEventListener("keydown", (event) => {
+      if (!menuOpen) return;
+      if (event.key === "Escape") { event.preventDefault(); closeMenu(); }
+      if (event.key === "Tab") { const buttons = Array.from($("menu-layer").querySelectorAll(".menu-item")); const index = buttons.indexOf(document.activeElement); event.preventDefault(); buttons[(index + (event.shiftKey ? -1 : 1) + buttons.length) % buttons.length].focus(); }
+    });
+    $("course-search").addEventListener("input", (event) => { state.courseQuery = event.target.value; renderCourseList(); persist(); });
+    $("faculty-filter").addEventListener("change", (event) => { state.faculty = event.target.value; renderCourseList(); persist(); });
+    $("course-list").addEventListener("click", (event) => { const button = event.target.closest("[data-course-id]"); if (button) selectCourse(button.dataset.courseId); });
+    $("calculator-content").addEventListener("input", (event) => { const key = event.target.dataset.inputKey; if (!key) return; const id = selectedCourse().id; if (!state.values[id]) state.values[id] = {}; state.values[id][key] = event.target.value; persist(); queueSummary(); });
+    $("target-grade").addEventListener("input", (event) => { state.target = event.target.value; persist(); queueSummary(); });
+    $("pending-select").addEventListener("change", updateSummary);
+    $("clear-course").addEventListener("click", clearCurrentCourse);
+    $("clear-current-settings").addEventListener("click", clearCurrentCourse);
+    $("quick-theme-toggle").addEventListener("click", () => { state.theme = state.theme === "dark" ? "light" : "dark"; applyTheme(); persist(true); });
+    document.querySelectorAll("[data-theme-choice]").forEach((button) => button.addEventListener("click", () => { state.theme = button.dataset.themeChoice; applyTheme(); persist(true); }));
+    $("new-custom-course").addEventListener("click", () => startCustom());
+    $("edit-custom-course").addEventListener("click", () => startCustom(selectedCourse()));
+    $("custom-form").addEventListener("input", readDraftEvent);
+    $("custom-form").addEventListener("change", readDraftEvent);
+    $("custom-form").addEventListener("submit", saveCustom);
+    $("add-custom-component").addEventListener("click", () => { if (state.draft.components.length >= 100) { message("Puedes añadir hasta 100 bloques de evaluación."); return; } state.draft.components.push({ id: `b${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`, label: "", total: "1", drop: "0", weight: "", precision: "none" }); renderDraft(); persist(); $("custom-components").lastElementChild.querySelector("input").focus(); });
+    $("custom-components").addEventListener("click", (event) => { const button = event.target.closest("[data-remove-block]"); if (!button || state.draft.components.length <= 1) return; state.draft.components = state.draft.components.filter((c) => c.id !== button.dataset.removeBlock); renderDraft(); persist(); });
+    $("reset-custom-draft").addEventListener("click", async () => { if ((state.draft.name || state.draft.editingId) && !await confirmAction("¿Iniciar un nuevo borrador? Tus cursos guardados se conservan.")) return; state.draft = store.newDraft(); renderDraft(); persist(true); });
+    document.addEventListener("click", async (event) => {
+      const use = event.target.closest("[data-use-course]");
+      if (use) { selectCourse(use.dataset.useCourse); switchScreen("calculator"); }
+      const edit = event.target.closest("[data-edit-course]");
+      if (edit) startCustom(courseMap.get(edit.dataset.editCourse));
+      const remove = event.target.closest("[data-delete-course]");
+      if (remove && await confirmAction("¿Eliminar este curso personalizado y sus notas?")) {
+        const id = remove.dataset.deleteCourse;
+        state.customCourses = state.customCourses.filter((c) => c.id !== id); delete state.values[id];
+        if (state.selectedCourseId === id) state.selectedCourseId = catalog[0].id;
+        if (state.draft.editingId === id) { state.draft = store.newDraft(); renderDraft(); }
+        rebuildCourses(); renderCourseList(); renderCurrentCourse(); renderSavedCourses(); persist(true);
+      }
+    });
+    $("formula-search").addEventListener("input", renderFormulaLibrary);
+    $("export-data").addEventListener("click", exportBackup);
+    $("import-data").addEventListener("change", importBackup);
+    $("clear-all-settings").addEventListener("click", async () => {
+      if (!await confirmAction("¿Borrar todas tus notas, cursos personalizados y el borrador? Descarga antes una copia si deseas conservarlos.")) return;
+      state = store.sanitizeState({}, catalog); rebuildCourses(); $("course-search").value = ""; $("target-grade").value = "11";
+      applyTheme(); renderDraft(); renderCourseList(); renderCurrentCourse(); switchScreen("calculator"); persist(true);
+    });
+    window.addEventListener("pagehide", flushState);
+    document.addEventListener("visibilitychange", () => { if (document.hidden) flushState(); });
+    window.addEventListener("beforeinstallprompt", (event) => { event.preventDefault(); installPrompt = event; $("install-app").hidden = false; });
+    $("install-app").addEventListener("click", async () => { if (!installPrompt) return; await installPrompt.prompt(); await installPrompt.userChoice; installPrompt = null; $("install-app").hidden = true; });
+  }
+  function setupOffline() {
+    const native = window.Capacitor && window.Capacitor.isNativePlatform();
+    if (native || location.protocol === "file:" || !("serviceWorker" in navigator) || !window.isSecureContext) return;
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
   }
 
-  return null;
-}
-
-function clearCurrentCourse() {
-  const course = getSelectedCourse();
-  state.values[course.id] = {};
-  persistState();
-  renderCurrentCourse();
-}
-
-function setCourseValue(courseId, key, rawValue) {
-  if (!state.values[courseId]) {
-    state.values[courseId] = {};
-  }
-
-  if (!rawValue || !String(rawValue).trim()) {
-    delete state.values[courseId][key];
-  } else {
-    state.values[courseId][key] = rawValue;
-  }
-
-  persistState();
-}
-
-function getSelectedCourse() {
-  return courses.find((course) => course.id === state.selectedCourseId) || courses[0];
-}
-
-function getCourseValues(courseId) {
-  return state.values[courseId] || {};
-}
-
-function buildComponentHelper(component) {
-  if (component.note) {
-    return component.note;
-  }
-  if (component.type === "top-list") {
-    return `Escribe ${component.total} notas separadas por espacios. Se toman las ${component.keep} mejores.`;
-  }
-  if (component.type === "group") {
-    return `Escribe ${component.total} notas separadas por espacios.`;
-  }
-  return "Ingresa una sola nota.";
-}
-
-function buildPlaceholder(component) {
-  if (component.total >= 8) {
-    return "Ej: 17 15 20 9 14 13";
-  }
-  if (component.total >= 4) {
-    return "Ej: 17 15 20 9";
-  }
-  if (component.total === 2) {
-    return "Ej: 15 18";
-  }
-  return "Ej: 17";
-}
-
-function applyTheme() {
-  els.body.dataset.theme = state.theme;
-  els.quickThemeIcon.textContent = state.theme === "dark" ? "☀" : "☾";
-  const themeMeta = document.querySelector('meta[name="theme-color"]');
-  if (themeMeta) {
-    themeMeta.setAttribute("content", state.theme === "dark" ? "#071018" : "#eef4fb");
-  }
-  els.themeOptions.forEach((button) => {
-    button.classList.toggle("active", button.dataset.theme === state.theme);
-  });
-}
-
-function average(values) {
-  return values.reduce((sum, value) => sum + value, 0) / values.length;
-}
-
-function parseGroupGrades(value, limit) {
-  const matches = String(value || "").match(/\d+(?:[\.,]\d+)?/g) || [];
-  return matches
-    .slice(0, limit)
-    .map((item) => parseSingleText(item))
-    .filter((item) => item != null);
-}
-
-function parseSingleText(value) {
-  if (!hasGrade(value)) {
-    return null;
-  }
-  const parsed = Number.parseFloat(String(value).replace(",", ".").trim());
-  if (!Number.isFinite(parsed)) {
-    return null;
-  }
-  return clamp(parsed, 0, 20);
-}
-
-function normalizeGroupText(value, limit) {
-  return parseGroupGrades(value, limit).map(formatGradeValue).join(" ");
-}
-
-function normalizeSingleText(value) {
-  const parsed = parseSingleText(value);
-  return parsed == null ? "" : formatGradeValue(parsed);
-}
-
-function formatGradeValue(value) {
-  return value % 1 === 0 ? String(value.toFixed(0)) : String(Number(value.toFixed(1)));
-}
-
-function sanitizeIntegerText(value, fallback) {
-  if (!hasGrade(value)) {
-    return String(fallback);
-  }
-  const digits = String(value).replace(/[^\d]/g, "");
-  if (!digits) {
-    return String(fallback);
-  }
-  return digits;
-}
-
-function clamp(value, min, max) {
-  return Math.min(Math.max(value, min), max);
-}
-
-function clampInteger(value, min, max) {
-  const parsed = Number.parseInt(String(value), 10);
-  if (!Number.isFinite(parsed)) {
-    return min;
-  }
-  return clamp(parsed, min, max);
-}
-
-function hasGrade(value) {
-  return value != null && String(value).trim() !== "";
-}
-
-function normalizeText(value) {
-  return String(value || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .trim();
-}
-
-function loadState() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-  } catch (error) {
-    return {};
-  }
-}
-
-function persistState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
+  if (loaded.error) { $("storage-notice").textContent = loaded.error; $("storage-notice").hidden = false; }
+  rebuildCourses();
+  $("course-search").value = state.courseQuery;
+  $("target-grade").value = state.target;
+  applyTheme(); attachEvents(); renderDraft(); renderCourseList(); renderCurrentCourse(); switchScreen(state.activeScreen, false); setupOffline();
+})();
